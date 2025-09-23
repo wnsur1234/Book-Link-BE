@@ -1,6 +1,7 @@
 package com.bookbook.booklink.library_service.model;
 
 import com.bookbook.booklink.library_service.model.dto.request.LibraryRegDto;
+import com.bookbook.booklink.library_service.model.dto.request.LibraryUpdateDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -112,5 +113,13 @@ public class Library {
                 //todo: User 연결 추가
                 .thumbnail_url(libraryRegDto.getThumbnail_url())
                 .build();
+    }
+
+    public void updateLibraryInfo(LibraryUpdateDto libraryUpdateDto) {
+        this.name = libraryUpdateDto.getName();
+        this.description = libraryUpdateDto.getDescription();
+        this.thumbnail_url = libraryUpdateDto.getThumbnail_url();
+        this.start_time = libraryUpdateDto.getStart_time();
+        this.end_time = libraryUpdateDto.getEnd_time();
     }
 }
