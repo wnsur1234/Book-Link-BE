@@ -55,7 +55,12 @@ public class LibraryDetailDto {
     @Schema(description = "이 도서관에서 좋아요 수가 높은 상위 5권의 도서")
     private List<PopularBookDto> topBooks;
 
-    public static LibraryDetailDto fromEntity(Library library) {
+    @Schema(description = "현재 위치에서 도서관까지의 거리 (km)", example = "1.25")
+    private Double distanceKm;
+
+    public static LibraryDetailDto fromEntity(LibraryDistanceProjection projection) {
+        Library library = projection.getLibrary();
+        Double distance = projection.getDistance();
         return LibraryDetailDto.builder()
                 .id(library.getId())
                 .name(library.getName())
@@ -67,6 +72,7 @@ public class LibraryDetailDto {
                 .thumbnailUrl(library.getThumbnailUrl())
                 .startTime(library.getStartTime())
                 .endTime(library.getEndTime())
+                .distanceKm(distance)
                 .build();
     }
 

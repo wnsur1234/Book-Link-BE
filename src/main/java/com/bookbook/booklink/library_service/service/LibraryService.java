@@ -2,6 +2,7 @@ package com.bookbook.booklink.library_service.service;
 
 import com.bookbook.booklink.auth_service.model.Member;
 import com.bookbook.booklink.book_service.model.LibraryBook;
+import com.bookbook.booklink.common.dto.PageResponse;
 import com.bookbook.booklink.common.event.LockEvent;
 import com.bookbook.booklink.common.exception.CustomException;
 import com.bookbook.booklink.common.exception.ErrorCode;
@@ -10,9 +11,12 @@ import com.bookbook.booklink.library_service.model.Library;
 import com.bookbook.booklink.library_service.model.dto.request.LibraryRegDto;
 import com.bookbook.booklink.library_service.model.dto.request.LibraryUpdateDto;
 import com.bookbook.booklink.library_service.model.dto.response.LibraryDetailDto;
+import com.bookbook.booklink.library_service.model.dto.response.LibraryDistanceProjection;
 import com.bookbook.booklink.library_service.repository.LibraryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -141,18 +145,22 @@ public class LibraryService {
     }
 
     /**
-     * 내 주변 3km 이내의 도서관 조회 (리스트 반환)
+     * 현재 위치를 기준으로 가장 가까운 순으로 도서관을 조회하고 페이지네이션 적용.
      *
-     * @param lat 현재위치(위도)
-     * @param lng 현재위치(경도)
-     * @return 현재위치로부터 3km 이내의 도서관 정보 리스트
+     * @param lat      현재위치(위도)
+     * @param lng      현재위치(경도)
+     * @param name     검색어
+     * @param pageable 페이지네이션 정보 (페이지 번호, 크기)
+     * @return 페이지네이션된 도서관 정보 DTO Page
      */
     @Transactional(readOnly = true)
-    public List<LibraryDetailDto> getLibraries(Double lat, Double lng, String name) {
+    public PageResponse<LibraryDetailDto> getLibraries(Double lat, Double lng, String name, Pageable pageable) {
 
-        List<Library> libraries = libraryRepository.findNearbyLibraries(lat, lng, name);
+        Page<LibraryDistanceProjection> libraryPage = libraryRepository.findLibrariesOrderByDistance(lat, lng, name, pageable);
 
-        return libraries.stream().map(LibraryDetailDto::fromEntity).toList();
+        Page<LibraryDetailDto> dtoPage = libraryPage.map(LibraryDetailDto::fromEntity);
+
+        return PageResponse.from(dtoPage);
     }
 
     /**
