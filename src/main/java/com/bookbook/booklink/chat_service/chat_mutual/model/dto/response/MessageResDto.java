@@ -26,6 +26,9 @@ public class MessageResDto {
     @Schema(description = "보낸 사람 ID", example = "7fa85f64-5717-4562-b3fc-2c963f66afa6")
     private UUID senderId;
 
+    @Schema(description = "보낸 사람 이메일", example = "test1@exampl.com")
+    private String senderEmail;
+
     @Schema(description = "메시지 본문", example = "안녕하세요!")
     private String text;
 
@@ -44,7 +47,8 @@ public class MessageResDto {
     public static MessageResDto fromEntity(ChatMessages entity) {
         return MessageResDto.builder()
                 .chatId(entity.getChatId())
-                .senderId(entity.getSenderId())
+                .senderId(entity.getSender().getId())
+                .senderEmail(entity.getSender().getEmail())
                 .text(entity.getText())
                 .sentAt(entity.getSentAt())
                 .status(entity.getStatus())

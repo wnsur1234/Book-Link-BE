@@ -1,5 +1,6 @@
 package com.bookbook.booklink.chat_service.chat_mutual.service;
 
+import com.bookbook.booklink.auth_service.model.Member;
 import com.bookbook.booklink.chat_service.chat_mutual.model.ChatMessages;
 import com.bookbook.booklink.chat_service.chat_mutual.model.dto.request.MessageReqDto;
 import com.bookbook.booklink.chat_service.chat_mutual.model.dto.response.MessageResDto;
@@ -25,14 +26,14 @@ public class ChatMessagesService {
      */
     @Transactional(readOnly = true)
     public List<MessageResDto> findSentMessages(UUID chatId) {
-        return chatMessagesRepository.findByChatIdOrderBySentAtAsc(chatId)
+        return chatMessagesRepository.findAllByChatId(chatId)
                 .stream()
                 .map(MessageResDto::fromEntity)
                 .toList();
     }
     @Transactional
-    public ChatMessages saveMessagesEntity(UUID senderId,MessageReqDto dto) {
-        ChatMessages chatMessages = ChatMessages.saveMessage(senderId,dto);
+    public ChatMessages saveMessagesEntity(Member member, MessageReqDto dto) {
+        ChatMessages chatMessages = ChatMessages.saveMessage(member,dto);
         return chatMessagesRepository.save(chatMessages);
     }
 
