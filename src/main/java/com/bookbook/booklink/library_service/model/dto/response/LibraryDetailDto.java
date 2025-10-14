@@ -76,6 +76,40 @@ public class LibraryDetailDto {
                 .build();
     }
 
+    public static LibraryDetailDto fromEntity(Library library) {
+        return LibraryDetailDto.builder()
+                .id(library.getId())
+                .name(library.getName())
+                .description(library.getDescription())
+                .stars(library.getStars())
+                .likeCount(library.getLikeCount())
+                .bookCount(library.getBookCount())
+                .createdAt(library.getCreatedAt())
+                .thumbnailUrl(library.getThumbnailUrl())
+                .startTime(library.getStartTime())
+                .endTime(library.getEndTime())
+                .build();
+    }
+
+    public static LibraryDetailDto fromEntity(Library library, Double distanceKm, List<LibraryBook> top5List) {
+        return LibraryDetailDto.builder()
+                .id(library.getId())
+                .name(library.getName())
+                .description(library.getDescription())
+                .stars(library.getStars())
+                .likeCount(library.getLikeCount())
+                .bookCount(library.getBookCount())
+                .createdAt(library.getCreatedAt())
+                .thumbnailUrl(library.getThumbnailUrl())
+                .startTime(library.getStartTime())
+                .distanceKm(distanceKm)
+                .topBooks(top5List.stream()
+                        .map(PopularBookDto::from)
+                        .collect(Collectors.toList()))
+                .endTime(library.getEndTime())
+                .build();
+    }
+
     public static LibraryDetailDto fromEntity(Library library, List<LibraryBook> top5List) {
         return LibraryDetailDto.builder()
                 .id(library.getId())

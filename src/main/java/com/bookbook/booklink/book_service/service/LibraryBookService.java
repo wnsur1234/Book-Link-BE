@@ -35,7 +35,7 @@ public class LibraryBookService {
     private final BookService bookService;
 
     @Transactional
-    public UUID registerLibraryBook(LibraryBookRegisterDto bookRegisterDto, String traceId, UUID userId) {
+    public UUID registerLibraryBook(LibraryBookRegisterDto bookRegisterDto, String traceId, UUID userId, Library library) {
         log.info("[LibraryBookService] [traceId = {}, userId = {}] register library book initiate bookId={}", traceId, userId, bookRegisterDto.getId());
 
         // 멱등성 체크
@@ -45,7 +45,6 @@ public class LibraryBookService {
 
         // find book & library
         Book book = bookService.findById(bookRegisterDto.getId());
-        Library library = libraryService.findByUserId(userId);
 
         // todo : 에러났을 때 멱등성 체크 풀기
         LibraryBook libraryBook = LibraryBook.toEntity(bookRegisterDto, book, library);
@@ -142,6 +141,11 @@ public class LibraryBookService {
     @Transactional(readOnly = true)
     public List<LibraryBook> findTop5Books(UUID libraryId) {
         return libraryBookRepository.findTop5BooksByLibraryOrderByLikeCount(libraryId, PageRequest.of(0, 5));
+    }
+
+    @Transactional(readOnly = true)
+    public List<LibraryBook> findTop5BooksList(List<UUID> libraryIds) {
+        return libraryBookRepository.findTopBooksByLibraryIds(libraryIds);
     }
 
     public LibraryBook getLibraryBookOrThrow(UUID libraryBookId) {

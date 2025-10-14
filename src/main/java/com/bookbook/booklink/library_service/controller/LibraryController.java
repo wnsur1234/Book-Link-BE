@@ -90,6 +90,14 @@ public class LibraryController implements LibraryApiDocs {
     }
 
     @Override
+    public ResponseEntity<BaseResponse<LibraryDetailDto>> getMyLibrary(
+            @AuthenticationPrincipal(expression = "member") Member member
+    ) {
+        return ResponseEntity.ok()
+                .body(BaseResponse.success(libraryService.getMyLibrary(member)));
+    }
+
+    @Override
     public ResponseEntity<BaseResponse<LibraryDetailDto>> getLibrary(
             @PathVariable @NotNull(message = "조회할 도서관의 ID는 필수입니다.") UUID id
     ) {

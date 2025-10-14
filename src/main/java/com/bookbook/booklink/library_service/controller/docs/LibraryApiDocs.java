@@ -65,6 +65,17 @@ public interface LibraryApiDocs {
     );
 
     @Operation(
+            summary = "내 도서관 조회",
+            description = "내 도서관의 상세 정보를 조회합니다."
+    )
+    @ApiErrorResponses({ErrorCode.VALIDATION_FAILED, ErrorCode.DATABASE_ERROR,
+            ErrorCode.METHOD_UNAUTHORIZED, ErrorCode.DATA_INTEGRITY_VIOLATION, ErrorCode.LIBRARY_NOT_FOUND})
+    @GetMapping("/my")
+    ResponseEntity<BaseResponse<LibraryDetailDto>> getMyLibrary(
+            @AuthenticationPrincipal(expression = "member") Member member
+    );
+
+    @Operation(
             summary = "특정 도서관 조회",
             description = "특정 도서관의 상세 정보를 조회합니다."
     )

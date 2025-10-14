@@ -10,8 +10,8 @@ import com.bookbook.booklink.book_service.service.LibraryBookService;
 import com.bookbook.booklink.common.dto.BaseResponse;
 import com.bookbook.booklink.common.dto.PageResponse;
 import com.bookbook.booklink.common.jwt.CustomUserDetail.CustomUserDetails;
+import com.bookbook.booklink.library_service.service.LibraryService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +28,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class LibraryBookController implements LibraryBookApiDocs {
     private final LibraryBookService bookService;
+    private final LibraryService libraryService;
     private final LibraryBookService libraryBookService;
 
     @Override
@@ -41,7 +42,7 @@ public class LibraryBookController implements LibraryBookApiDocs {
         log.info("[LibraryBookController] [traceId = {}, userId = {}] register book request received, bookId={}",
                 traceId, userId, bookRegisterDto.getId());
 
-        UUID savedLibraryBookId = bookService.registerLibraryBook(bookRegisterDto, traceId, userId);
+        UUID savedLibraryBookId = bookService.registerLibraryBook(bookRegisterDto, traceId, userId, libraryService.findByUserId(userId));
 
         log.info("[LibraryBookController] [traceId = {}, userId = {}] register book request success, libraryBookId={}",
                 traceId, userId, savedLibraryBookId);

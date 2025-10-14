@@ -2,6 +2,7 @@ package com.bookbook.booklink.library_service.service;
 
 import com.bookbook.booklink.auth_service.model.Member;
 import com.bookbook.booklink.book_service.model.LibraryBook;
+import com.bookbook.booklink.book_service.service.LibraryBookService;
 import com.bookbook.booklink.common.dto.PageResponse;
 import com.bookbook.booklink.common.event.LockEvent;
 import com.bookbook.booklink.common.exception.CustomException;
@@ -20,8 +21,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Library 관련 비즈니스 로직 처리 서비스
@@ -36,6 +40,7 @@ public class LibraryService {
 
     private final LibraryRepository libraryRepository;
     private final IdempotencyService idempotencyService;
+    private final LibraryBookService libraryBookService;
 
     /**
      * 새로운 Library 등록
@@ -144,6 +149,13 @@ public class LibraryService {
         return LibraryDetailDto.fromEntity(library, top5List);
     }
 
+    @Transactional(readOnly = true)
+    public LibraryDetailDto getMyLibrary(Member member) {
+        Library library = findByUserId(member.getId());
+
+        return LibraryDetailDto.fromEntity(library);
+    }
+
     /**
      * 현재 위치를 기준으로 가장 가까운 순으로 도서관을 조회하고 페이지네이션 적용.
      *
@@ -157,8 +169,30 @@ public class LibraryService {
     public PageResponse<LibraryDetailDto> getLibraries(Double lat, Double lng, String name, Pageable pageable) {
 
         Page<LibraryDistanceProjection> libraryPage = libraryRepository.findLibrariesOrderByDistance(lat, lng, name, pageable);
+        List<UUID> libraryIds = libraryPage.getContent().stream()
+                .map(p -> p.getLibrary().getId())
+                .toList();
 
-        Page<LibraryDetailDto> dtoPage = libraryPage.map(LibraryDetailDto::fromEntity);
+        List<LibraryBook> allLibraryBooks = libraryBookService.findTop5BooksList(libraryIds);
+
+        Map<UUID, List<LibraryBook>> topBooksMap = allLibraryBooks.stream()
+                .collect(Collectors.groupingBy(
+                        lb -> lb.getLibrary().getId(),
+                        Collectors.collectingAndThen(
+                                Collectors.toList(),
+                                list -> list.stream()
+                                        .limit(5)
+                                        .collect(Collectors.toList())
+                        )
+                ));
+        Page<LibraryDetailDto> dtoPage = libraryPage.map(projection -> {
+            Library library = projection.getLibrary();
+            Double distance = projection.getDistance();
+
+            List<LibraryBook> top5List = topBooksMap.getOrDefault(library.getId(), Collections.emptyList());
+
+            return LibraryDetailDto.fromEntity(library, distance, top5List);
+        });
 
         return PageResponse.from(dtoPage);
     }
