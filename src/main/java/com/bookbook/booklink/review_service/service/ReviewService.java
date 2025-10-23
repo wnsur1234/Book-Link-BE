@@ -78,11 +78,11 @@ public class ReviewService {
      * @param reviewUpdateDto 리뷰의 수정 정보 Dto
      * @param reviewId        수정할 리뷰의 ID
      * @param traceId         요청 멱등성 체크용 ID
-     * @param userId          요청 사용자 ID
+     * @param member          요청 사용자
      */
     @Transactional
-    public void updateReview(ReviewUpdateDto reviewUpdateDto, UUID reviewId, String traceId, UUID userId) {
-
+    public void updateReview(ReviewUpdateDto reviewUpdateDto, UUID reviewId, String traceId, Member member) {
+        UUID userId = member.getId();
         log.info("[ReviewService] [traceId={}, userId={}] update review initiate. reviewId={}",
                 traceId, userId, reviewId);
 
@@ -92,7 +92,7 @@ public class ReviewService {
                 () -> LockEvent.builder().key(key).build());
 
         // 기존 리뷰 조회
-        Review existingReview = findReviewById(reviewId);
+        Review existingReview = findReviewByIdAndMember(reviewId, member);
 
         Short oldRating = existingReview.getRating();
         Short newRating = reviewUpdateDto.getRating();
@@ -114,15 +114,16 @@ public class ReviewService {
      * 리뷰 삭제하는 메서드
      *
      * @param reviewId 삭제할 리뷰의 ID
-     * @param userId   요청한 유저의 ID
+     * @param member   요청한 유저
      */
     @Transactional
-    public void deleteReview(UUID traceId, UUID reviewId, UUID userId) {
+    public void deleteReview(UUID traceId, UUID reviewId, Member member) {
+        UUID userId = member.getId();
         log.info("[ReviewService] [traceId={}, userId={}] delete review initiate. reviewId={}",
                 traceId, userId, reviewId);
 
         // 리뷰 삭제
-        Review existingReview = findReviewById(reviewId);
+        Review existingReview = findReviewByIdAndMember(reviewId, member);
         UUID targetId = existingReview.getTargetId();
         reviewRepository.delete(existingReview);
 
@@ -143,7 +144,8 @@ public class ReviewService {
      */
     public ReviewSummary findReviewSummaryByTargetId(UUID targetId) {
 
-        return reviewSummaryRepository.findById(targetId).orElse(null);
+        return reviewSummaryRepository.findById(targetId)
+                .orElseThrow(() -> new CustomException(ErrorCode.TARGET_NOT_FOUND));
     }
 
     /**
@@ -154,6 +156,18 @@ public class ReviewService {
      */
     public Review findReviewById(UUID reviewId) {
         return reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
+    }
+
+    /**
+     * 사용자와 고유 ID로 리뷰 조회
+     *
+     * @param member   조회하는 사용자
+     * @param reviewId 조회할 ID
+     * @return 리뷰
+     */
+    public Review findReviewByIdAndMember(UUID reviewId, Member member) {
+        return reviewRepository.findByReviewerAndId(member, reviewId)
                 .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
     }
 

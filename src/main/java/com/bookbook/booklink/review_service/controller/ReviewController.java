@@ -58,7 +58,7 @@ public class ReviewController implements ReviewApiDocs {
         log.info("[ReviewController] [traceId = {}, userId = {}] update review request received. reviewId={}",
                 traceId, userId, reviewId);
 
-        reviewService.updateReview(reviewUpdateDto, reviewId, traceId, userId);
+        reviewService.updateReview(reviewUpdateDto, reviewId, traceId, member);
 
         log.info("[ReviewController] [traceId = {}, userId = {}] update review request success. reviewId={}",
                 traceId, userId, reviewId);
@@ -78,7 +78,7 @@ public class ReviewController implements ReviewApiDocs {
         log.info("[ReviewController] [traceId = {}, userId = {}] delete review request received. reviewId={}",
                 traceId, userId, reviewId);
 
-        reviewService.deleteReview(reviewId, traceId, userId);
+        reviewService.deleteReview(reviewId, traceId, member);
 
         log.info("[ReviewController] [traceId = {}, userId = {}] delete review request success. reviewId={}",
                 traceId, userId, reviewId);
