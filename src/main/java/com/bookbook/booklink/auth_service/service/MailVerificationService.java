@@ -4,6 +4,8 @@ import com.bookbook.booklink.auth_service.model.Member;
 import com.bookbook.booklink.auth_service.model.dto.response.VerificationResDto;
 import com.bookbook.booklink.auth_service.repository.MemberRepository;
 import com.bookbook.booklink.auth_service.service.redis.RedisService;
+import com.bookbook.booklink.common.exception.CustomException;
+import com.bookbook.booklink.common.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,10 +42,12 @@ public class MailVerificationService {
 
         // 재발송 쿨다운
         String cdnKey = CDN_KEY.formatted(email);
-        if (redisService.hasKey(cdnKey)) throw new IllegalStateException("재발송 대기 중입니다.");
+        if (redisService.hasKey(cdnKey)) {
+            throw new CustomException(ErrorCode.EMAIL_COOLDOWN);
+        }
 
         String code = generateNumericCode(6);
-        String subject = "[Travel With Me] 이메일 인증 코드";
+        String subject = "[BookLink] 이메일 인증 코드";
         String body = "인증 코드는 " + code + " 입니다. " + (codeTtlMillis/60000) + "분 내 입력해주세요.";
 
         // 메일 발송
@@ -62,6 +66,7 @@ public class MailVerificationService {
     public VerificationResDto verifyCode(String email, String inputCode) {
         String codeKey = CODE_KEY.formatted(email);
         String saved = redisService.getValues(codeKey);
+
         if (saved == null) {
             return VerificationResDto.of(false); // 만료 또는 미발송
         }
@@ -70,7 +75,7 @@ public class MailVerificationService {
         String triesKey = TRIES_KEY.formatted( email);
         long tries = redisService.increment(triesKey, Duration.ofMillis(codeTtlMillis));
         if (tries > MAX_TRIES) {
-            return VerificationResDto.of(false);
+            throw new CustomException(ErrorCode.AUTH_CODE_TRY_LIMIT_EXCEEDED);
         }
 
         boolean ok = saved.equals(inputCode);
@@ -78,8 +83,10 @@ public class MailVerificationService {
             // 성공 시 소비
             redisService.delete(codeKey);
             redisService.delete(triesKey);
+            return VerificationResDto.of(true);
+        }else {
+            throw new CustomException(ErrorCode.AUTH_CODE_INVALID);
         }
-        return VerificationResDto.of(ok);
     }
 
     private String generateNumericCode(int length) {
@@ -89,7 +96,7 @@ public class MailVerificationService {
             for (int i = 0; i < length; i++) b.append(r.nextInt(10));
             return b.toString();
         } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("코드 생성 실패", e);
+            throw new CustomException(ErrorCode.UNKNOWN_ERROR);
         }
     }
 }

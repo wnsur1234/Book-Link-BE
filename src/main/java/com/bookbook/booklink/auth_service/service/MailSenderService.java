@@ -1,5 +1,7 @@
 package com.bookbook.booklink.auth_service.service;
 
+import com.bookbook.booklink.common.exception.CustomException;
+import com.bookbook.booklink.common.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,7 +33,7 @@ public class MailSenderService {
             mailSender.send(msg);
         } catch (RuntimeException e) {
             log.warn("Mail send failed to={}, subject={}", toEmail, subject, e);
-            throw new RuntimeException("메일 전송 실패", e);
+            throw new CustomException(ErrorCode.EMAIL_SEND_FAILED);
         }
     }
 

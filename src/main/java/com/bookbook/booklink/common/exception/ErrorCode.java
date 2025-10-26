@@ -177,7 +177,14 @@ public enum ErrorCode {
     NOT_GROUP_MEMBER(HttpStatus.BAD_REQUEST, "NOT_GROUP_MEMBER_400", "그룹 멤버가 아닙니다."),
     SCHEDULE_NOT_FOUND(HttpStatus.BAD_REQUEST, "SCHEDULE_NOT_FOUND_400", "일정이 존재하지 않습니다."),
     NOT_SCHEDULE_PARTICIPANT(HttpStatus.BAD_REQUEST, "NOT_SCHEDULE_MEMBER_400", "일정에 참여하지 않은 사용자입니다."),
-    ALREADY_SCHEDULE_PARTICIPANT(HttpStatus.BAD_REQUEST, "ALREADY_SCHEDULE_PARTICIPANT_400", "이미 일정에 참여한 사용자입니다.");
+    ALREADY_SCHEDULE_PARTICIPANT(HttpStatus.BAD_REQUEST, "ALREADY_SCHEDULE_PARTICIPANT_400", "이미 일정에 참여한 사용자입니다."),
+
+    // 이메일 인즈
+    AUTH_CODE_EXPIRED(HttpStatus.BAD_REQUEST, "AUTH_CODE_EXPIRED_400", "인증번호가 만료되었거나 발급되지 않았습니다."),
+    AUTH_CODE_INVALID(HttpStatus.BAD_REQUEST, "AUTH_CODE_INVALID_400", "인증번호가 일치하지 않습니다."),
+    AUTH_CODE_TRY_LIMIT_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "AUTH_CODE_TRY_LIMIT_EXCEEDED_429", "인증 시도 횟수가 초과되었습니다."),
+    EMAIL_COOLDOWN(HttpStatus.TOO_MANY_REQUESTS, "EMAIL_COOLDOWN_429", "인증번호 재전송 대기 중입니다."),
+    EMAIL_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "EMAIL_SEND_FAILED_500", "이메일 발송에 실패했습니다.");
 
     private final HttpStatus httpStatus;
     @Schema(description = "에러 코드", example = "UNKNOWN_ERROR_500", implementation = ErrorCode.class)
