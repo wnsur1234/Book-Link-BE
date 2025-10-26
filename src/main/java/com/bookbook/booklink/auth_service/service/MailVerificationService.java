@@ -21,9 +21,9 @@ import java.util.Random;
 @Transactional
 @RequiredArgsConstructor
 public class MailVerificationService {
-    private static final String CODE_KEY = "email:verify:code:%s:%s";     // purpose, email
-    private static final String TRIES_KEY = "email:verify:tries:%s:%s";   // purpose, email
-    private static final String CDN_KEY = "email:verify:cooldown:%s:%s";  // purpose, email
+    private static final String CODE_KEY = "email:verify:code:%s";     // purpose, email
+    private static final String TRIES_KEY = "email:verify:tries:%s";   // purpose, email
+    private static final String CDN_KEY = "email:verify:cooldown:%s";  // purpose, email
 
     private final MemberRepository memberRepository;   // 회원가입 용도일 때만 사용
     private final MailSenderService mailSenderService;
@@ -36,15 +36,10 @@ public class MailVerificationService {
     private static final Duration RESEND_COOLDOWN = Duration.ofSeconds(60);
 
     @Transactional
-    public void sendCodeToEmail(String email, String purpose) {
-        // (선택) 회원가입일 때 이미 존재하면 차단
-        if ("REGISTER".equalsIgnoreCase(purpose)) {
-            Optional<Member> found = memberRepository.findByEmail(email);
-            if (found.isPresent()) throw new IllegalStateException("이미 가입된 이메일입니다.");
-        }
+    public void sendCodeToEmail(String email) {
 
         // 재발송 쿨다운
-        String cdnKey = CDN_KEY.formatted(purpose, email);
+        String cdnKey = CDN_KEY.formatted(email);
         if (redisService.hasKey(cdnKey)) throw new IllegalStateException("재발송 대기 중입니다.");
 
         String code = generateNumericCode(6);
@@ -55,24 +50,24 @@ public class MailVerificationService {
         mailSenderService.sendPlainText(email, subject, body);
 
         // 코드 저장
-        String codeKey = CODE_KEY.formatted(purpose, email);
+        String codeKey = CODE_KEY.formatted(email);
         redisService.setValues(codeKey, code, Duration.ofMillis(codeTtlMillis));
 
         // 쿨다운/시도횟수 초기화
         redisService.setValues(cdnKey, "1", RESEND_COOLDOWN);
-        redisService.delete(TRIES_KEY.formatted(purpose, email));
+        redisService.delete(TRIES_KEY.formatted(email));
     }
 
     @Transactional
-    public VerificationResDto verifyCode(String email, String purpose, String inputCode) {
-        String codeKey = CODE_KEY.formatted(purpose, email);
+    public VerificationResDto verifyCode(String email, String inputCode) {
+        String codeKey = CODE_KEY.formatted(email);
         String saved = redisService.getValues(codeKey);
         if (saved == null) {
             return VerificationResDto.of(false); // 만료 또는 미발송
         }
 
         // 시도 제한
-        String triesKey = TRIES_KEY.formatted(purpose, email);
+        String triesKey = TRIES_KEY.formatted( email);
         long tries = redisService.increment(triesKey, Duration.ofMillis(codeTtlMillis));
         if (tries > MAX_TRIES) {
             return VerificationResDto.of(false);

@@ -14,8 +14,4 @@ public class SendCodeReqDto {
     @Schema(description = "인증 보낼 이메일",example = "user@example.com")
     @NotBlank @Email
     private String email;
-
-    @Schema(description = "용도", example = "REGISTER")
-    @NotBlank
-    private String purpose; // REGISTER, RESET_PASSWORD 등
 }

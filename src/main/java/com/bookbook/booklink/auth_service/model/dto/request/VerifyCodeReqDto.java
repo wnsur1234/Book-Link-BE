@@ -12,16 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class VerifyCodeReqDto {
-
-    @Schema(description = "인증 이메일", example = "user@example.com")
-    @NotBlank @Email
-    private String email;
-
     @Schema(description = "인증코드", example = "483920")
     @NotBlank @Size(min=6, max=8)
     private String code;
-
-    @Schema(description = "용도", example = "REGISTER")
-    @NotBlank
-    private String purpose;
 }
