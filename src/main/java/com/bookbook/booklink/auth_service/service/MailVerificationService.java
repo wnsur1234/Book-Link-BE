@@ -1,8 +1,6 @@
 package com.bookbook.booklink.auth_service.service;
 
-import com.bookbook.booklink.auth_service.model.Member;
 import com.bookbook.booklink.auth_service.model.dto.response.VerificationResDto;
-import com.bookbook.booklink.auth_service.repository.MemberRepository;
 import com.bookbook.booklink.auth_service.service.redis.RedisService;
 import com.bookbook.booklink.common.exception.CustomException;
 import com.bookbook.booklink.common.exception.ErrorCode;
@@ -15,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.Duration;
-import java.util.Optional;
 import java.util.Random;
 
 @Slf4j
@@ -27,7 +24,6 @@ public class MailVerificationService {
     private static final String TRIES_KEY = "email:verify:tries:%s";   // purpose, email
     private static final String CDN_KEY = "email:verify:cooldown:%s";  // purpose, email
 
-    private final MemberRepository memberRepository;   // 회원가입 용도일 때만 사용
     private final MailSenderService mailSenderService;
     private final RedisService redisService;
 

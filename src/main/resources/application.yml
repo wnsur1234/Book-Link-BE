@@ -49,6 +49,11 @@ app:
   auth-code-expiration-millis: 300000
   mail:
     from: ${MAIL_FROM:${MAIL_USERNAME}} # 기본: 발신 계정과 동일
+  frontend:
+    base-url: exmaple.com  # 프론트 도메인
+    password-reset:
+      path: /reset-password           # 프론트 라우트
+      expire-minutes: 15  # 토큰 만료 15분
 
 jwt:
   secret: ${JWT_SECRET}
