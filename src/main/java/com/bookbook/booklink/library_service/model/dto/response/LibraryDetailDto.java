@@ -55,6 +55,27 @@ public class LibraryDetailDto {
     @Schema(description = "이 도서관에서 좋아요 수가 높은 상위 5권의 도서")
     private List<PopularBookDto> topBooks;
 
+    @Schema(description = "현재 위치에서 도서관까지의 거리 (km)", example = "1.25")
+    private Double distanceKm;
+
+    public static LibraryDetailDto fromEntity(LibraryDistanceProjection projection) {
+        Library library = projection.getLibrary();
+        Double distance = projection.getDistance();
+        return LibraryDetailDto.builder()
+                .id(library.getId())
+                .name(library.getName())
+                .description(library.getDescription())
+                .stars(library.getStars())
+                .likeCount(library.getLikeCount())
+                .bookCount(library.getBookCount())
+                .createdAt(library.getCreatedAt())
+                .thumbnailUrl(library.getThumbnailUrl())
+                .startTime(library.getStartTime())
+                .endTime(library.getEndTime())
+                .distanceKm(distance)
+                .build();
+    }
+
     public static LibraryDetailDto fromEntity(Library library) {
         return LibraryDetailDto.builder()
                 .id(library.getId())
@@ -66,6 +87,25 @@ public class LibraryDetailDto {
                 .createdAt(library.getCreatedAt())
                 .thumbnailUrl(library.getThumbnailUrl())
                 .startTime(library.getStartTime())
+                .endTime(library.getEndTime())
+                .build();
+    }
+
+    public static LibraryDetailDto fromEntity(Library library, Double distanceKm, List<LibraryBook> top5List) {
+        return LibraryDetailDto.builder()
+                .id(library.getId())
+                .name(library.getName())
+                .description(library.getDescription())
+                .stars(library.getStars())
+                .likeCount(library.getLikeCount())
+                .bookCount(library.getBookCount())
+                .createdAt(library.getCreatedAt())
+                .thumbnailUrl(library.getThumbnailUrl())
+                .startTime(library.getStartTime())
+                .distanceKm(distanceKm)
+                .topBooks(top5List.stream()
+                        .map(PopularBookDto::from)
+                        .collect(Collectors.toList()))
                 .endTime(library.getEndTime())
                 .build();
     }

@@ -116,8 +116,8 @@ public enum ErrorCode {
     ILLEGAL_EXTEND_DATE(HttpStatus.BAD_REQUEST, "BOOK_BAD_REQUEST_400", "연장 일자가 기존 반납일자보다 빠를 수 없습니다."),
 
     /*
-    * Borrow
-    */
+     * Borrow
+     */
     @Schema(description = "존재하지 않는 대여 기록입니다.")
     BORROW_NOT_FOUND(HttpStatus.BAD_REQUEST, "BORROW_NOT_FOUND_400", "존재하지 않는 대여 기록입니다."),
 
@@ -178,6 +178,7 @@ public enum ErrorCode {
     SCHEDULE_NOT_FOUND(HttpStatus.BAD_REQUEST, "SCHEDULE_NOT_FOUND_400", "일정이 존재하지 않습니다."),
     NOT_SCHEDULE_PARTICIPANT(HttpStatus.BAD_REQUEST, "NOT_SCHEDULE_MEMBER_400", "일정에 참여하지 않은 사용자입니다."),
     ALREADY_SCHEDULE_PARTICIPANT(HttpStatus.BAD_REQUEST, "ALREADY_SCHEDULE_PARTICIPANT_400", "이미 일정에 참여한 사용자입니다."),
+    TARGET_NOT_FOUND(HttpStatus.BAD_REQUEST, "TARGET_NOT_FOUND_400", "리뷰대상이 존재하지 않습니다."),
 
     // 이메일 인즈
     AUTH_CODE_EXPIRED(HttpStatus.BAD_REQUEST, "AUTH_CODE_EXPIRED_400", "인증번호가 만료되었거나 발급되지 않았습니다."),

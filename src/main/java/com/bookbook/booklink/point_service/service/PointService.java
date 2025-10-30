@@ -110,7 +110,7 @@ public class PointService {
         UUID userId = member.getId();
         log.info("[PointService] [userId = {}] Get Point History request received.", userId);
 
-        List<PointHistory> pointHistoryList = pointHistoryRepository.findAllByUserIdOrderByCreatedAt(userId);
+        List<PointHistory> pointHistoryList = pointHistoryRepository.findAllByMember_IdOrderByCreatedAt(userId);
 
         log.info("[PointService] [userId = {}] Get Point History success. size={}", userId, pointHistoryList.size());
         return pointHistoryList.stream().map(PointHistoryListDto::fromEntity).toList();

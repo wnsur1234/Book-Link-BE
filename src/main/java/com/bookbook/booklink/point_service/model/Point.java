@@ -20,14 +20,18 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@IdClass(UUID.class)
 public class Point {
 
     @Id
+    @Column(name = "member_id")
+    @Schema(description = "포인트 엔티티의 ID (Member ID와 동일)")
+    private UUID memberId;
+
+    @MapsId
     @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "member_id", nullable = false)
+    @JoinColumn(name = "member_id", insertable = false, updatable = false)
     @NotNull
-    @Schema(description = "포인트를 사용한 사용자")
+    @Schema(description = "포인트를 소유한 사용자 엔티티")
     private Member member;
 
     @Min(value = 0, message = "잔액은 양수여야합니다.")

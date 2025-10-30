@@ -1,9 +1,10 @@
 package com.bookbook.booklink.library_service.controller;
 
-import com.bookbook.booklink.common.dto.BaseResponse;
 import com.bookbook.booklink.auth_service.model.Member;
 import com.bookbook.booklink.book_service.model.LibraryBook;
 import com.bookbook.booklink.book_service.service.LibraryBookService;
+import com.bookbook.booklink.common.dto.BaseResponse;
+import com.bookbook.booklink.common.dto.PageResponse;
 import com.bookbook.booklink.library_service.controller.docs.LibraryApiDocs;
 import com.bookbook.booklink.library_service.model.dto.request.LibraryRegDto;
 import com.bookbook.booklink.library_service.model.dto.request.LibraryUpdateDto;
@@ -13,6 +14,8 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
@@ -87,6 +90,14 @@ public class LibraryController implements LibraryApiDocs {
     }
 
     @Override
+    public ResponseEntity<BaseResponse<LibraryDetailDto>> getMyLibrary(
+            @AuthenticationPrincipal(expression = "member") Member member
+    ) {
+        return ResponseEntity.ok()
+                .body(BaseResponse.success(libraryService.getMyLibrary(member)));
+    }
+
+    @Override
     public ResponseEntity<BaseResponse<LibraryDetailDto>> getLibrary(
             @PathVariable @NotNull(message = "조회할 도서관의 ID는 필수입니다.") UUID id
     ) {
@@ -98,13 +109,15 @@ public class LibraryController implements LibraryApiDocs {
     }
 
     @Override
-    public ResponseEntity<BaseResponse<List<LibraryDetailDto>>> getLibraries(
+    public ResponseEntity<BaseResponse<PageResponse<LibraryDetailDto>>> getLibraries(
             @RequestParam Double lat,
             @RequestParam Double lng,
-            @RequestParam(required = false) String name
+            @RequestParam(required = false) String name,
+            @PageableDefault(page = 0, size = 10) Pageable pageable
     ) {
 
-        List<LibraryDetailDto> result = libraryService.getLibraries(lat, lng, name);
+        PageResponse<LibraryDetailDto> result = libraryService.getLibraries(lat, lng, name, pageable);
+
 
         return ResponseEntity.ok()
                 .body(BaseResponse.success(result));

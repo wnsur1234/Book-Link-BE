@@ -10,7 +10,7 @@ import java.util.UUID;
 @Repository
 public interface PointHistoryRepository extends JpaRepository<PointHistory, UUID> {
 
-    List<PointHistory> findAllByUserIdOrderByCreatedAt(UUID userId);
+    List<PointHistory> findAllByMember_IdOrderByCreatedAt(UUID userId);
 
 }
     
