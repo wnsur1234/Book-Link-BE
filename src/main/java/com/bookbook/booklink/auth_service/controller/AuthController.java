@@ -1,7 +1,7 @@
 package com.bookbook.booklink.auth_service.controller;
 
 import com.bookbook.booklink.auth_service.controller.docs.AuthApiDocs;
-import com.bookbook.booklink.auth_service.model.dto.request.LoginRequest;
+import com.bookbook.booklink.auth_service.model.dto.request.LoginReqDto;
 import com.bookbook.booklink.auth_service.model.dto.response.TokenResDto;
 import com.bookbook.booklink.auth_service.service.AuthService;
 import com.bookbook.booklink.common.dto.BaseResponse;
@@ -35,12 +35,12 @@ public class AuthController implements AuthApiDocs {
     }
 
     @Override
-    public ResponseEntity<BaseResponse<TokenResDto>> login(@Valid @RequestBody LoginRequest loginRequest){
+    public ResponseEntity<BaseResponse<TokenResDto>> login(@Valid @RequestBody LoginReqDto loginReqDto){
 
         // 인증 시도
         Authentication authentication =
                 authenticationManager.authenticate(
-                        new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+                        new UsernamePasswordAuthenticationToken(loginReqDto.getEmail(), loginReqDto.getPassword()));
 
         // 인증 성공 시 사용자 정보/권한 획득
         String email = authentication.getName();

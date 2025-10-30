@@ -1,6 +1,6 @@
 package com.bookbook.booklink.auth_service.controller.docs;
 
-import com.bookbook.booklink.auth_service.model.dto.request.LoginRequest;
+import com.bookbook.booklink.auth_service.model.dto.request.LoginReqDto;
 import com.bookbook.booklink.auth_service.model.dto.response.TokenResDto;
 import com.bookbook.booklink.common.exception.ApiErrorResponses;
 import com.bookbook.booklink.common.dto.BaseResponse;
@@ -33,6 +33,6 @@ public interface AuthApiDocs {
             description = "이메일/비밀번호로 로그인하고 JWT(Access/Refresh)를 발급합니다."
     )
     @PostMapping("/login")
-    public ResponseEntity<BaseResponse<TokenResDto>> login(@RequestBody LoginRequest loginRequest);
+    public ResponseEntity<BaseResponse<TokenResDto>> login(@RequestBody LoginReqDto loginReqDto);
 
 }
