@@ -1,5 +1,6 @@
 package com.bookbook.booklink.chat_service.single.service;
 
+import com.bookbook.booklink.auth_service.model.Member;
 import com.bookbook.booklink.chat_service.chat_mutual.model.ChatMessages;
 import com.bookbook.booklink.chat_service.chat_mutual.model.dto.request.MessageReqDto;
 import com.bookbook.booklink.chat_service.chat_mutual.model.dto.response.MessageResDto;
@@ -49,17 +50,17 @@ public class SingleChatsService {
 
 
     @Transactional
-    public MessageResDto saveChatMessages(UUID senderId, MessageReqDto dto) {
-        System.out.println("📩 saveChatMessages 호출됨: senderId=" + senderId + ", chatId=" + dto.getChatId());
+    public MessageResDto saveChatMessages(Member member, MessageReqDto dto) {
+        System.out.println("📩 saveChatMessages 호출됨: senderId=" + member.getId() + ", chatId=" + dto.getChatId());
         SingleChats room = singleChatsRepository.findById(dto.getChatId())
                 .orElseThrow(() -> new CustomException(ErrorCode.CHAT_ROOM_NOT_FOUND));
         System.out.println("✅ room 조회 성공: roomId=" + room.getId());
-        if (!room.hasMember(senderId)) {
+        if (!room.hasMember(member.getId())) {
             System.out.println("❌ senderId가 room 멤버 아님!");
             throw new CustomException(ErrorCode.CHAT_ROOM_FORBIDDEN);
         }
 
-        ChatMessages saved = chatMessagesService.saveMessagesEntity(senderId,dto);
+        ChatMessages saved = chatMessagesService.saveMessagesEntity(member,dto);
         System.out.println("💾 message 저장됨: id=" + saved.getId());
 
         room.updateLastMessage(saved.getText(), saved.getSentAt());

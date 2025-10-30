@@ -40,7 +40,7 @@ public class SingleChatsController implements SingleChatApiDocs {
     ) {
         System.out.println(user.getMember().getId());
         MessageResDto response =
-                singleChatsService.saveChatMessages(user.getMember().getId(),dto);
+                singleChatsService.saveChatMessages(user.getMember(),dto);
         return ResponseEntity.ok(BaseResponse.success(response));
     }
 

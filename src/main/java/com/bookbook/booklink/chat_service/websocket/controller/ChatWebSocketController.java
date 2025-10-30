@@ -1,5 +1,6 @@
 package com.bookbook.booklink.chat_service.websocket.controller;
 
+import com.bookbook.booklink.auth_service.model.Member;
 import com.bookbook.booklink.chat_service.chat_mutual.model.dto.request.MessageReqDto;
 import com.bookbook.booklink.chat_service.chat_mutual.model.dto.response.MessageResDto;
 import com.bookbook.booklink.chat_service.single.service.SingleChatsService;
@@ -41,24 +42,12 @@ public class ChatWebSocketController {
 
 
         CustomUserDetails userDetails = (CustomUserDetails) principal;
-        UUID memberId = userDetails.getMember().getId();
-        String email = userDetails.getUsername();
+        Member member = userDetails.getMember();
 
-        MessageResDto saved = singleChatsService.saveChatMessages(memberId, dto);
-
-        // senderEmail을 직접 세팅해서 클라이언트로 전달
-        saved = MessageResDto.builder()
-                .chatId(saved.getChatId())
-                .senderId(saved.getSenderId())
-                .text(saved.getText())
-                .sentAt(saved.getSentAt())
-                .status(saved.getStatus())
-                .type(saved.getType())
-                .attachments(saved.getAttachments())
-                .build();
+        MessageResDto saved = singleChatsService.saveChatMessages(member, dto);
 
         // 구독자에게 메시지 전달
         messagingTemplate.convertAndSend("/sub/chat/" + dto.getChatId(), saved);
-        System.out.println("✅ Controller 인증 유저 ID = " + memberId);
+        System.out.println("✅ Controller 인증 유저 ID = " + member.getId());
     }
 }
