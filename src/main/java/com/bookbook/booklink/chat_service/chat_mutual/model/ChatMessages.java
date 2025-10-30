@@ -1,5 +1,6 @@
 package com.bookbook.booklink.chat_service.chat_mutual.model;
 
+import com.bookbook.booklink.auth_service.model.Member;
 import com.bookbook.booklink.chat_service.chat_mutual.code.MessageStatus;
 import com.bookbook.booklink.chat_service.chat_mutual.code.MessageType;
 import com.bookbook.booklink.chat_service.chat_mutual.code.RoomType;
@@ -58,21 +59,22 @@ public class ChatMessages {
     @Schema(description = "채팅방 타입", example = "SINGLE")
     private RoomType roomType;
 
-    @Schema(description = "보낸 유저 ID")
-    private UUID senderId;
-
     @Schema(description = "소속 채팅방 ID")
     private UUID chatId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sender_id", nullable = false)
+    private Member sender;
 
     @OneToMany(mappedBy = "message", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<MessageAttachments> attachments = new ArrayList<>();
 
-    public static ChatMessages saveMessage(UUID senderId, MessageReqDto dto) {
+    public static ChatMessages saveMessage(Member sender, MessageReqDto dto) {
         // 1. 먼저 메시지 엔티티 생성
         ChatMessages message = ChatMessages.builder()
                 .chatId(dto.getChatId())
-                .senderId(senderId)
+                .sender(sender)
                 .text(dto.getText())
                 .status(MessageStatus.SENT)
                 .type(MessageType.TEXT)
