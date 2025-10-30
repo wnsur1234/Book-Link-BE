@@ -51,6 +51,10 @@ public class ProfileResDto {
     @Schema(description = "프로필 이미지 URL", example = "https://example.com/profile.jpg")
     private String profileImage;
 
+    @Schema(description = "내가 만든 Library ID (없으면 미포함/NULL)",
+            example = "550e8400-e29b-41d4-a716-446655440001")
+    private UUID libraryId;
+
     public static ProfileResDto from(Member m) {
         return ProfileResDto.builder()
                 .id(m.getId())
@@ -62,9 +66,12 @@ public class ProfileResDto {
                 .provider(m.getProvider().name())
                 .role(m.getRole().name())
                 .status(m.getStatus().name())
-                .pointBalance(m.getPoint().getBalance())
+                // Point가 없을 수도 있으니 NPE 방지
+                .pointBalance(m.getPoint() != null ? m.getPoint().getBalance() : 0)
                 .createdAt(m.getCreatedAt())
                 .profileImage(m.getProfileImage())
+                // Library 존재 시에만 ID 세팅
+                .libraryId(m.getLibrary() != null ? m.getLibrary().getId() : null)
                 .build();
     }
 }

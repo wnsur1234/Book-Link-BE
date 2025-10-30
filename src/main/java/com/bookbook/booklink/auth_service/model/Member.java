@@ -84,7 +84,7 @@ public class Member {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    @Schema(description = "역할", example = "USER", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "역할", example = "CUSTOMER", requiredMode = Schema.RequiredMode.REQUIRED)
     private Role role;
 
     @Enumerated(EnumType.STRING)
