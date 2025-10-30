@@ -36,6 +36,8 @@ dependencies {
     // WebSocket 추가
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-mail', version: '3.0.5'
+
     annotationProcessor 'org.projectlombok:lombok'
 
     compileOnly 'org.projectlombok:lombok'

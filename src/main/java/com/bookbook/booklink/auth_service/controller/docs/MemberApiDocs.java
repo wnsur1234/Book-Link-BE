@@ -1,12 +1,12 @@
 package com.bookbook.booklink.auth_service.controller.docs;
 
-import com.bookbook.booklink.common.exception.ApiErrorResponses;
-import com.bookbook.booklink.common.dto.BaseResponse;
-import com.bookbook.booklink.common.exception.ErrorCode;
-import com.bookbook.booklink.common.jwt.CustomUserDetail.CustomUserDetails;
 import com.bookbook.booklink.auth_service.model.dto.request.SignUpReqDto;
 import com.bookbook.booklink.auth_service.model.dto.request.UpdateReqDto;
 import com.bookbook.booklink.auth_service.model.dto.response.ProfileResDto;
+import com.bookbook.booklink.common.dto.BaseResponse;
+import com.bookbook.booklink.common.exception.ApiErrorResponses;
+import com.bookbook.booklink.common.exception.ErrorCode;
+import com.bookbook.booklink.common.jwt.CustomUserDetail.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -43,7 +43,9 @@ public interface MemberApiDocs {
             @AuthenticationPrincipal CustomUserDetails user
     );
 
-    @Operation(summary = "회원 정보 수정", description = "현재 로그인한 사용자의 정보를 수정합니다.")
+    @Operation(
+            summary = "회원 정보 수정",
+            description = "현재 로그인한 사용자의 정보를 수정합니다.")
     @ApiErrorResponses({ErrorCode.VALIDATION_FAILED, ErrorCode.DATABASE_ERROR,
             ErrorCode.METHOD_UNAUTHORIZED, ErrorCode.DATA_INTEGRITY_VIOLATION, ErrorCode.USER_NOT_FOUND})
     @PutMapping("/update")
