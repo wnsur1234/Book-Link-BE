@@ -10,6 +10,8 @@ import com.bookbook.booklink.auth_service.model.dto.request.SignUpReqDto;
 import com.bookbook.booklink.auth_service.model.dto.request.UpdateReqDto;
 import com.bookbook.booklink.auth_service.model.dto.response.ProfileResDto;
 import com.bookbook.booklink.auth_service.service.MemberService;
+import com.bookbook.booklink.common.dto.BaseResponse;
+import com.bookbook.booklink.common.jwt.CustomUserDetail.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
