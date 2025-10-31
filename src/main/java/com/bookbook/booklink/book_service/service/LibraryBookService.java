@@ -31,7 +31,6 @@ import java.util.UUID;
 public class LibraryBookService {
     private final LibraryBookRepository libraryBookRepository;
     private final IdempotencyService idempotencyService;
-    private final LibraryService libraryService;
     private final BookService bookService;
 
     @Transactional
