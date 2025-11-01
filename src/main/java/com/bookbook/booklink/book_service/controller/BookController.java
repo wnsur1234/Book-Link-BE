@@ -56,7 +56,7 @@ public class BookController implements BookApiDocs {
         UUID userId = customUserDetails.getMember().getId();
 
         log.info("[BookController] [traceId = {}, userId = {}] register book request received, isbn={}",
-                traceId, userId, bookRegisterDto.getISBN());
+                traceId, userId, bookRegisterDto.getIsbn());
 
 
         UUID savedBookId = bookService.saveBook(bookRegisterDto, traceId, userId);

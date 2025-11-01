@@ -78,7 +78,7 @@ public class Book {
         return Book.builder()
                 .title(dto.getTitle())
                 .author(dto.getAuthor())
-                .ISBN(dto.getISBN())
+                .ISBN(dto.getIsbn())
                 .publisher(dto.getPublisher())
                 .originalPrice(dto.getOriginalPrice())
                 .publishedDate(dto.getPublishedDate().atStartOfDay())

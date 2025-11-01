@@ -10,10 +10,8 @@ import com.bookbook.booklink.common.exception.CustomException;
 import com.bookbook.booklink.common.exception.ErrorCode;
 import com.bookbook.booklink.common.service.IdempotencyService;
 import jakarta.transaction.Transactional;
-import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 
@@ -60,14 +58,14 @@ public class BookService {
 
     @Transactional
     public UUID saveBook(BookRegisterDto bookRegisterDto, String traceId, UUID userId) {
-        log.info("[BookService] [traceId = {}, userId = {}] get book initiate isbn={}", traceId, userId, bookRegisterDto.getISBN());
+        log.info("[BookService] [traceId = {}, userId = {}] get book initiate isbn={}", traceId, userId, bookRegisterDto.getIsbn());
 
         // 멱등성 체크
         String key = "book:register:" + traceId;
         idempotencyService.checkIdempotency(key, 1,
                 () -> LockEvent.builder().key(key).build());
 
-        if (bookRepository.existsByISBN(bookRegisterDto.getISBN())) {
+        if (bookRepository.existsByISBN(bookRegisterDto.getIsbn())) {
             throw new CustomException(ErrorCode.DUPLICATE_BOOK);
         }
 
