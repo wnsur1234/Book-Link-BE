@@ -40,7 +40,6 @@ public interface LibraryBookRepository extends JpaRepository<LibraryBook, UUID> 
             WHERE lb.deleted_at IS NULL
               AND (:bookName IS NULL OR b.title LIKE %:bookName%)
             GROUP BY lb.id, l.name, b.title, b.author, lb.copies, lb.borrowed_count, lb.deposit, l.latitude, l.longitude
-            HAVING distance <= 3
             ORDER BY
                 CASE WHEN :sortType = 'LATEST' THEN lb.created_at END DESC,
                 CASE WHEN :sortType = 'MOST_BORROWED' THEN lb.borrowed_count END DESC,
@@ -65,11 +64,6 @@ public interface LibraryBookRepository extends JpaRepository<LibraryBook, UUID> 
             JOIN library_book_copy lbc ON lb.id = lbc.library_book_id
             WHERE lb.deleted_at IS NULL
               AND (:bookName IS NULL OR b.title LIKE %:bookName%)
-              AND (6371 * acos(
-                    cos(radians(:lat)) * cos(radians(l.latitude)) *
-                    cos(radians(l.longitude) - radians(:lng)) +
-                    sin(radians(:lat)) * sin(radians(l.latitude))
-                  )) <= 3
             """,
             nativeQuery = true)
     long countLibraryBooksBySearch(
