@@ -14,6 +14,7 @@ import com.bookbook.booklink.library_service.model.dto.request.LibraryUpdateDto;
 import com.bookbook.booklink.library_service.model.dto.response.LibraryDetailDto;
 import com.bookbook.booklink.library_service.model.dto.response.LibraryDistanceProjection;
 import com.bookbook.booklink.library_service.repository.LibraryRepository;
+import com.bookbook.booklink.review_service.model.dto.response.ReviewListDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -142,11 +143,11 @@ public class LibraryService {
      * @return 변환된 dto
      */
     @Transactional(readOnly = true)
-    public LibraryDetailDto getLibrary(UUID libraryId, List<LibraryBook> top5List) {
+    public LibraryDetailDto getLibrary(UUID libraryId, List<LibraryBook> top5List, List<ReviewListDto> top5Review) {
 
         Library library = findById(libraryId);
 
-        return LibraryDetailDto.fromEntity(library, top5List);
+        return LibraryDetailDto.fromEntity(library, top5List, top5Review);
     }
 
     @Transactional(readOnly = true)

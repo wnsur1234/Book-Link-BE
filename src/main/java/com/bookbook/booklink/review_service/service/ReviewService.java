@@ -185,6 +185,14 @@ public class ReviewService {
         return libraryReviewList.stream().map(ReviewListDto::fromEntity).toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<ReviewListDto> getTop5LibraryReview(UUID libraryId) {
+
+        List<Review> libraryReviewList = reviewRepository.findFirst5ByTargetIdOrderByRatingDescCreateAtDesc(libraryId);
+
+        return libraryReviewList.stream().map(ReviewListDto::fromEntity).toList();
+    }
+
     /**
      * 유저/도서관의 평균 별점을 조회하는 메서드
      *

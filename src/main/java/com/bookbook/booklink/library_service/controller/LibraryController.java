@@ -10,6 +10,8 @@ import com.bookbook.booklink.library_service.model.dto.request.LibraryRegDto;
 import com.bookbook.booklink.library_service.model.dto.request.LibraryUpdateDto;
 import com.bookbook.booklink.library_service.model.dto.response.LibraryDetailDto;
 import com.bookbook.booklink.library_service.service.LibraryService;
+import com.bookbook.booklink.review_service.model.dto.response.ReviewListDto;
+import com.bookbook.booklink.review_service.service.ReviewService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class LibraryController implements LibraryApiDocs {
     private final LibraryService libraryService;
+    private final ReviewService reviewService;
     private final LibraryBookService libraryBookService;
 
     @Override
@@ -102,7 +105,8 @@ public class LibraryController implements LibraryApiDocs {
             @PathVariable @NotNull(message = "조회할 도서관의 ID는 필수입니다.") UUID id
     ) {
         List<LibraryBook> top5List = libraryBookService.findTop5Books(id);
-        LibraryDetailDto libraryDetailDto = libraryService.getLibrary(id, top5List);
+        List<ReviewListDto> top5Review = reviewService.getTop5LibraryReview(id);
+        LibraryDetailDto libraryDetailDto = libraryService.getLibrary(id, top5List, top5Review);
 
         return ResponseEntity.ok()
                 .body(BaseResponse.success(libraryDetailDto));
