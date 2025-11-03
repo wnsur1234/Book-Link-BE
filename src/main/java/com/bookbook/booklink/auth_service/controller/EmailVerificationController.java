@@ -1,6 +1,5 @@
 package com.bookbook.booklink.auth_service.controller;
 
-import com.bookbook.booklink.auth_service.code.EmailPurpose;
 import com.bookbook.booklink.auth_service.controller.docs.EmailApiDocs;
 import com.bookbook.booklink.auth_service.model.dto.request.SendCodeReqDto;
 import com.bookbook.booklink.auth_service.model.dto.request.VerifyCodeReqDto;
@@ -12,9 +11,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@RequestMapping
+@RestController
 @RequiredArgsConstructor
 public class EmailVerificationController implements EmailApiDocs {
 
