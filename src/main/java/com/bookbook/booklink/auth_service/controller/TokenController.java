@@ -27,6 +27,7 @@ public class TokenController implements TokenApiDocs {
             @RequestHeader("Refresh-Token") String refreshToken,
             @RequestHeader(value = "Trace-Id", required = false) String traceId
     ) {
+        // refreshToken의 만료 시간을 검사
         if (jwtUtil.isExpired(refreshToken)) {
             throw new CustomException(ErrorCode.EXPIRED_REFRESH_TOKEN);
         }
@@ -47,3 +48,4 @@ public class TokenController implements TokenApiDocs {
                 .body(BaseResponse.success("Bearer " + newAccessToken));
     }
 }
+

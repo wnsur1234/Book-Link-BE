@@ -10,6 +10,8 @@ import com.bookbook.booklink.common.jwt.service.RefreshTokenService;
 import com.bookbook.booklink.common.jwt.util.JWTUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -31,7 +33,19 @@ public class AuthController implements AuthApiDocs {
     @Override
     public ResponseEntity<BaseResponse<Boolean>> logout(@AuthenticationPrincipal CustomUserDetails user){
         authService.logout(user.getUsername()); // email이 담겨있음
-        return ResponseEntity.ok(BaseResponse.success(true));
+
+        // 쿠키 삭제용 빈 쿠키 생성
+        ResponseCookie deleteCookie = ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .secure(true) // HTTPS만 사용 시
+                .sameSite("Strict")
+                .path("/")
+                .maxAge(0) // = 삭제
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, deleteCookie.toString())
+                .body(BaseResponse.success(true));
     }
 
     @Override
@@ -59,9 +73,17 @@ public class AuthController implements AuthApiDocs {
         // 기존 리프레시 토큰 삭제 후 신규 저장
         refreshTokenService.saveRefreshToken(email, refreshToken);
 
-        // 헤더 + 바디 동시 반환 (Swagger에서 쓰기 편하도록)
+        // HttpOnly RefreshToken 쿠키 생성
+        ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", refreshToken)
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .sameSite("Strict") // csrf 설정
+                .maxAge(60 * 60 * 24 * 7)
+                .build();
+
         return ResponseEntity.ok()
-                .header("Authorization", "Bearer " + accessToken)
+                .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
                 .body(BaseResponse.success(new TokenResDto(accessToken)));
     }
 }
