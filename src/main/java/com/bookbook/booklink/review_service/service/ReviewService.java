@@ -10,6 +10,7 @@ import com.bookbook.booklink.review_service.model.ReviewSummary;
 import com.bookbook.booklink.review_service.model.TargetType;
 import com.bookbook.booklink.review_service.model.dto.request.ReviewCreateDto;
 import com.bookbook.booklink.review_service.model.dto.request.ReviewUpdateDto;
+import com.bookbook.booklink.review_service.model.dto.response.RatingDto;
 import com.bookbook.booklink.review_service.model.dto.response.ReviewListDto;
 import com.bookbook.booklink.review_service.repository.ReviewRepository;
 import com.bookbook.booklink.review_service.repository.ReviewSummaryRepository;
@@ -200,14 +201,14 @@ public class ReviewService {
      * @return 평균 별점 or null
      */
     @Transactional(readOnly = true)
-    public Double getAvgRating(UUID targetId) {
+    public RatingDto getAvgRating(UUID targetId) {
 
         ReviewSummary reviewSummary = findReviewSummaryByTargetId(targetId);
 
         if (reviewSummary == null) {
             return null;
         } else {
-            return reviewSummary.getAvgRating();
+            return RatingDto.toDto(reviewSummary.getAvgRating(), reviewSummary.getTotalCount());
         }
 
     }

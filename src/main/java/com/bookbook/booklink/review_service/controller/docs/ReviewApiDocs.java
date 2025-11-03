@@ -7,6 +7,7 @@ import com.bookbook.booklink.common.exception.ApiErrorResponses;
 import com.bookbook.booklink.common.exception.ErrorCode;
 import com.bookbook.booklink.review_service.model.dto.request.ReviewCreateDto;
 import com.bookbook.booklink.review_service.model.dto.request.ReviewUpdateDto;
+import com.bookbook.booklink.review_service.model.dto.response.RatingDto;
 import com.bookbook.booklink.review_service.model.dto.response.ReviewListDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -83,7 +84,7 @@ public interface ReviewApiDocs {
     @ApiErrorResponses({ErrorCode.VALIDATION_FAILED, ErrorCode.DATABASE_ERROR,
             ErrorCode.DATA_INTEGRITY_VIOLATION})
     @GetMapping("/rating/{targetId}")
-    public ResponseEntity<BaseResponse<Double>> getAvgRating(
+    public ResponseEntity<BaseResponse<RatingDto>> getAvgRating(
             @PathVariable UUID targetId
     );
 
