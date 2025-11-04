@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PasswordReqDto {
+public class PasswordCheckReqDto {
 
     @Schema(description = "평문 비밀번호", example = "P@ssw0rd!")
     @NotBlank
