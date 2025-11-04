@@ -1,17 +1,15 @@
 package com.bookbook.booklink.auth_service.controller.docs;
 
-import com.bookbook.booklink.auth_service.model.dto.request.SendCodeReqDto;
+import com.bookbook.booklink.auth_service.model.dto.request.EmailReqDto;
 import com.bookbook.booklink.auth_service.model.dto.request.VerifyCodeReqDto;
 import com.bookbook.booklink.auth_service.model.dto.response.VerificationResDto;
 import com.bookbook.booklink.common.dto.BaseResponse;
 import com.bookbook.booklink.common.exception.ApiErrorResponses;
 import com.bookbook.booklink.common.exception.ErrorCode;
-import com.bookbook.booklink.common.jwt.CustomUserDetail.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("api/auth/email")
@@ -26,7 +24,7 @@ public interface EmailApiDocs {
             ErrorCode.METHOD_UNAUTHORIZED, ErrorCode.DATA_INTEGRITY_VIOLATION})
     @PostMapping("/code")
     public ResponseEntity<BaseResponse<Boolean>> sendMessage(
-            @Valid @RequestBody SendCodeReqDto req);
+            @Valid @RequestBody EmailReqDto req);
 
     @Operation(
             summary = "이메일 인증 검증 및 처리",

@@ -1,7 +1,7 @@
 package com.bookbook.booklink.auth_service.controller;
 
 import com.bookbook.booklink.auth_service.controller.docs.PasswordApiDocs;
-import com.bookbook.booklink.auth_service.model.dto.request.ResetReqDto;
+import com.bookbook.booklink.auth_service.model.dto.request.EmailReqDto;
 import com.bookbook.booklink.auth_service.service.PasswordResetService;
 import com.bookbook.booklink.common.dto.BaseResponse;
 import jakarta.validation.Valid;
@@ -20,7 +20,7 @@ public class PasswordResetController implements PasswordApiDocs {
     @Override
     @PreAuthorize("permitAll()")
     public ResponseEntity<BaseResponse<Boolean>> requestLink(
-            @Valid @RequestBody ResetReqDto req
+            @Valid @RequestBody EmailReqDto req
     ){
         Boolean result = passwordResetService.issueResetTokenAndSendMail(req.getEmail());
         // 존재 유추 방지: 항상 true 반환

@@ -1,6 +1,6 @@
 package com.bookbook.booklink.auth_service.controller.docs;
 
-import com.bookbook.booklink.auth_service.model.dto.request.ResetReqDto;
+import com.bookbook.booklink.auth_service.model.dto.request.EmailReqDto;
 import com.bookbook.booklink.common.dto.BaseResponse;
 import com.bookbook.booklink.common.exception.ApiErrorResponses;
 import com.bookbook.booklink.common.exception.ErrorCode;
@@ -24,6 +24,6 @@ public interface PasswordApiDocs {
     @PostMapping("/request")
     @PreAuthorize("permitAll()")
     public ResponseEntity<BaseResponse<Boolean>> requestLink(
-            @Valid @RequestBody ResetReqDto req
+            @Valid @RequestBody EmailReqDto req
     );
 }

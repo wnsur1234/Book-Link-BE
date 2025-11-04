@@ -1,8 +1,7 @@
 package com.bookbook.booklink.auth_service.controller;
 
-import com.bookbook.booklink.auth_service.code.EmailPurpose;
 import com.bookbook.booklink.auth_service.controller.docs.EmailApiDocs;
-import com.bookbook.booklink.auth_service.model.dto.request.SendCodeReqDto;
+import com.bookbook.booklink.auth_service.model.dto.request.EmailReqDto;
 import com.bookbook.booklink.auth_service.model.dto.request.VerifyCodeReqDto;
 import com.bookbook.booklink.auth_service.model.dto.response.VerificationResDto;
 import com.bookbook.booklink.auth_service.service.MailVerificationService;
@@ -22,7 +21,7 @@ public class EmailVerificationController implements EmailApiDocs {
 
     @Override
     public ResponseEntity<BaseResponse<Boolean>> sendMessage(
-            @Valid @RequestBody SendCodeReqDto req){
+            @Valid @RequestBody EmailReqDto req){
         mailVerificationService.sendCodeToEmail(req.getEmail());
         return ResponseEntity.ok()
             .body(BaseResponse.success(Boolean.TRUE));
