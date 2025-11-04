@@ -11,5 +11,6 @@ import com.bookbook.booklink.auth_service.model.Member;
 public interface MemberRepository extends JpaRepository<Member, UUID> {
     boolean existsByEmail(String email);
     Optional<Member> findByEmail(String email);
+    boolean existsByNickname(String nickname);
 }
     
