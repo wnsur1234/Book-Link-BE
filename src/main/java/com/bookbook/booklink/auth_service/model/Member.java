@@ -158,4 +158,8 @@ public class Member {
         this.phone = dto.getPhone();
         this.profileImage = dto.getProfileImage();
     }
+
+    public void changePassword(String encodedPassword){
+        this.password = encodedPassword;
+    }
 }
