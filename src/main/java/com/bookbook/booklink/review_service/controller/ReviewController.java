@@ -5,6 +5,7 @@ import com.bookbook.booklink.common.dto.BaseResponse;
 import com.bookbook.booklink.review_service.controller.docs.ReviewApiDocs;
 import com.bookbook.booklink.review_service.model.dto.request.ReviewCreateDto;
 import com.bookbook.booklink.review_service.model.dto.request.ReviewUpdateDto;
+import com.bookbook.booklink.review_service.model.dto.response.RatingDto;
 import com.bookbook.booklink.review_service.model.dto.response.ReviewListDto;
 import com.bookbook.booklink.review_service.service.ReviewService;
 import jakarta.validation.Valid;
@@ -99,13 +100,11 @@ public class ReviewController implements ReviewApiDocs {
     }
 
     @Override
-    public ResponseEntity<BaseResponse<Double>> getAvgRating(
+    public ResponseEntity<BaseResponse<RatingDto>> getAvgRating(
             @PathVariable UUID targetId
     ) {
-        Double avgRating = reviewService.getAvgRating(targetId);
-
         return ResponseEntity.ok()
-                .body(BaseResponse.success(avgRating));
+                .body(BaseResponse.success(reviewService.getAvgRating(targetId)));
     }
 
     public ResponseEntity<BaseResponse<List<ReviewListDto>>> getMyReview(

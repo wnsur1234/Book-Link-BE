@@ -4,6 +4,7 @@ import com.bookbook.booklink.book_service.model.Book;
 import com.bookbook.booklink.book_service.model.BookCategory;
 import com.bookbook.booklink.book_service.model.LibraryBook;
 import com.bookbook.booklink.library_service.model.Library;
+import com.bookbook.booklink.review_service.model.dto.response.ReviewListDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -58,6 +59,9 @@ public class LibraryDetailDto {
     @Schema(description = "현재 위치에서 도서관까지의 거리 (km)", example = "1.25")
     private Double distanceKm;
 
+    @Schema(description = "이 도서관에서 별점이 높은 상위 5개의 최신 리뷰")
+    private List<ReviewListDto> topReviews;
+
     public static LibraryDetailDto fromEntity(LibraryDistanceProjection projection) {
         Library library = projection.getLibrary();
         Double distance = projection.getDistance();
@@ -110,7 +114,7 @@ public class LibraryDetailDto {
                 .build();
     }
 
-    public static LibraryDetailDto fromEntity(Library library, List<LibraryBook> top5List) {
+    public static LibraryDetailDto fromEntity(Library library, List<LibraryBook> top5List, List<ReviewListDto> top5Review) {
         return LibraryDetailDto.builder()
                 .id(library.getId())
                 .name(library.getName())
@@ -125,6 +129,7 @@ public class LibraryDetailDto {
                         .map(PopularBookDto::from)
                         .collect(Collectors.toList()))
                 .endTime(library.getEndTime())
+                .topReviews(top5Review)
                 .build();
     }
 

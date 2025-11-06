@@ -16,6 +16,8 @@ public interface ReviewRepository extends JpaRepository<Review, UUID> {
 
     List<Review> findAllByTargetId(UUID targetId);
 
+    List<Review> findFirst5ByTargetIdOrderByRatingDescCreateAtDesc(UUID targetId);
+
     @Query("""
             select r from Review r where r.reviewer = :reviewer and r.targetType = :targetType
             """
