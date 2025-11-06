@@ -133,13 +133,8 @@ public class Member {
             orphanRemoval = true)
     private Point point;
 
-    public Member linkPoint(Point point) {
-        this.point = point;
-        return this;
-    }
-
     public static Member ofLocalSignup(SignUpReqDto req, String encodedPassword) {
-        Member member = Member.builder()
+        return Member.builder()
                 .email(req.getEmail())
                 .password(encodedPassword)
                 .name(req.getName())
@@ -151,11 +146,6 @@ public class Member {
                 .role(Role.CUSTOMER)
                 .status(Status.ACTIVE)
                 .build();
-        Point point = Point.builder()
-                .member(member)
-                .balance(0)
-                .build();
-        return member.linkPoint(point);
     }
 
     /**
