@@ -1,6 +1,6 @@
 package com.bookbook.booklink.auth_service.controller;
 
-import com.bookbook.booklink.auth_service.model.dto.request.PasswordReqDto;
+import com.bookbook.booklink.auth_service.model.dto.request.PasswordCheckReqDto;
 import com.bookbook.booklink.auth_service.service.PasswordCheckService;
 import com.bookbook.booklink.common.dto.BaseResponse;
 import com.bookbook.booklink.common.jwt.CustomUserDetail.CustomUserDetails;
@@ -10,8 +10,6 @@ import com.bookbook.booklink.auth_service.model.dto.request.SignUpReqDto;
 import com.bookbook.booklink.auth_service.model.dto.request.UpdateReqDto;
 import com.bookbook.booklink.auth_service.model.dto.response.ProfileResDto;
 import com.bookbook.booklink.auth_service.service.MemberService;
-import com.bookbook.booklink.common.dto.BaseResponse;
-import com.bookbook.booklink.common.jwt.CustomUserDetail.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -62,10 +60,10 @@ public class MemberController implements MemberApiDocs {
 
     @Override
     public ResponseEntity<BaseResponse<Boolean>> checkPassword(
-            @Valid @RequestBody PasswordReqDto passwordReqDto,
+            @Valid @RequestBody PasswordCheckReqDto passwordCheckReqDto,
             @AuthenticationPrincipal CustomUserDetails user
     ) {
-        Boolean matches = passwordCheckService.verifyPassword(user.getMember().getEmail(),passwordReqDto.getPassword());
+        Boolean matches = passwordCheckService.verifyPassword(user.getMember().getEmail(), passwordCheckReqDto.getPassword());
         return ResponseEntity.ok()
                 .body(BaseResponse.success(matches));
     }

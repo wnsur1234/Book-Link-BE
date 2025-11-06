@@ -52,6 +52,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // 비밀번호 변경 허용
+                        .requestMatchers("/api/auth/password-reset/**").permitAll()
                         // 메일 확인 허용
                         .requestMatchers("/api/auth/email/code", "/api/auth/email/verify").permitAll()
                         // 컨트롤러 기반 로그인/토큰 재발급/회원가입 허용

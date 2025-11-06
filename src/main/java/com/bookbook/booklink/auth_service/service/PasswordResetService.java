@@ -1,11 +1,14 @@
 package com.bookbook.booklink.auth_service.service;
 
+import com.bookbook.booklink.auth_service.model.Member;
+import com.bookbook.booklink.auth_service.model.dto.request.PasswordResetReqDto;
 import com.bookbook.booklink.auth_service.repository.MemberRepository;
 import com.bookbook.booklink.auth_service.service.redis.PasswordResetTokenStore;
+import com.bookbook.booklink.common.exception.CustomException;
+import com.bookbook.booklink.common.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.MailSender;
-import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +30,7 @@ public class PasswordResetService {
     private final MemberRepository memberRepository;
     private final PasswordResetTokenStore tokenStore; // Redis/DB 저장소
     private final MailSenderService mailSenderService; // 팀의 메일 발송 컴포넌트
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public boolean issueResetTokenAndSendMail(String email) {
@@ -70,4 +74,34 @@ public class PasswordResetService {
 
         mailSenderService.sendPlainText(email, subject, content);
     }
+
+    @Transactional
+    public void resetPassword(String token, PasswordResetReqDto req) {
+
+        // 비밀번호 & 확인 값 일치 여부
+        if (!req.getNewPassword().equals(req.getConfirmPassword())) {
+            throw new CustomException(ErrorCode.PASSWORD_CONFIRM_NOT_MATCH);
+        }
+
+        // 토큰으로 이메일 조회 (없거나 만료 시 예외)
+        String email = tokenStore.getEmailByToken(token)
+                .orElseThrow(() -> new CustomException(ErrorCode.PASSWORD_RESET_TOKEN_NOT_FOUND));
+
+        // 4) 회원 조회
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        // 5) 기존 비밀번호와 동일한지 체크 (선택)
+        if (passwordEncoder.matches(req.getNewPassword(), member.getPassword())) {
+            throw new CustomException(ErrorCode.PASSWORD_SAME_AS_OLD);
+        }
+
+        // 6) 비밀번호 변경
+        String encoded = passwordEncoder.encode(req.getNewPassword());
+        member.changePassword(encoded); // 엔티티에 메서드 하나 만들어 두면 깔끔
+
+        // 7) 토큰 사용 처리 (재사용 방지)
+        tokenStore.consume(token); // Redis key 삭제 등
+    }
+
 }

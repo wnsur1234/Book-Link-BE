@@ -1,6 +1,7 @@
 package com.bookbook.booklink.auth_service.controller.docs;
 
-import com.bookbook.booklink.auth_service.model.dto.request.PasswordReqDto;
+import com.bookbook.booklink.auth_service.model.dto.request.PasswordCheckReqDto;
+import com.bookbook.booklink.auth_service.model.dto.request.PasswordResetReqDto;
 import com.bookbook.booklink.common.exception.ApiErrorResponses;
 import com.bookbook.booklink.common.dto.BaseResponse;
 import com.bookbook.booklink.common.exception.ErrorCode;
@@ -8,10 +9,6 @@ import com.bookbook.booklink.common.jwt.CustomUserDetail.CustomUserDetails;
 import com.bookbook.booklink.auth_service.model.dto.request.SignUpReqDto;
 import com.bookbook.booklink.auth_service.model.dto.request.UpdateReqDto;
 import com.bookbook.booklink.auth_service.model.dto.response.ProfileResDto;
-import com.bookbook.booklink.common.dto.BaseResponse;
-import com.bookbook.booklink.common.exception.ApiErrorResponses;
-import com.bookbook.booklink.common.exception.ErrorCode;
-import com.bookbook.booklink.common.jwt.CustomUserDetail.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -66,7 +63,7 @@ public interface MemberApiDocs {
     @PostMapping("/check-password")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<BaseResponse<Boolean>> checkPassword(
-            @Valid @RequestBody PasswordReqDto passwordReqDto,
+            @Valid @RequestBody PasswordCheckReqDto passwordCheckReqDto,
             @AuthenticationPrincipal CustomUserDetails user
     );
 }

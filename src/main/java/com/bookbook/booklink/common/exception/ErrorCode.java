@@ -180,12 +180,18 @@ public enum ErrorCode {
     ALREADY_SCHEDULE_PARTICIPANT(HttpStatus.BAD_REQUEST, "ALREADY_SCHEDULE_PARTICIPANT_400", "이미 일정에 참여한 사용자입니다."),
     TARGET_NOT_FOUND(HttpStatus.BAD_REQUEST, "TARGET_NOT_FOUND_400", "리뷰대상이 존재하지 않습니다."),
 
-    // 이메일 인즈
+    // 이메일 인증
     AUTH_CODE_EXPIRED(HttpStatus.BAD_REQUEST, "AUTH_CODE_EXPIRED_400", "인증번호가 만료되었거나 발급되지 않았습니다."),
     AUTH_CODE_INVALID(HttpStatus.BAD_REQUEST, "AUTH_CODE_INVALID_400", "인증번호가 일치하지 않습니다."),
     AUTH_CODE_TRY_LIMIT_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "AUTH_CODE_TRY_LIMIT_EXCEEDED_429", "인증 시도 횟수가 초과되었습니다."),
     EMAIL_COOLDOWN(HttpStatus.TOO_MANY_REQUESTS, "EMAIL_COOLDOWN_429", "인증번호 재전송 대기 중입니다."),
-    EMAIL_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "EMAIL_SEND_FAILED_500", "이메일 발송에 실패했습니다.");
+    EMAIL_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "EMAIL_SEND_FAILED_500", "이메일 발송에 실패했습니다."),
+
+    // 비밀번호 변경 시
+    PASSWORD_RESET_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "PASSWORD_RESET_TOKEN_NOT_FOUND_400", "유효하지 않은 비밀번호 재설정 링크입니다."),
+    PASSWORD_RESET_TOKEN_EXPIRED(HttpStatus.BAD_REQUEST, "PASSWORD_RESET_TOKEN_EXPIRED_400", "비밀번호 재설정 링크가 만료되었습니다."),
+    PASSWORD_CONFIRM_NOT_MATCH(HttpStatus.BAD_REQUEST, "PASSWORD_CONFIRM_NOT_MATCH_400", "비밀번호와 비밀번호 확인이 일치하지 않습니다."),
+    PASSWORD_SAME_AS_OLD(HttpStatus.BAD_REQUEST, "PASSWORD_SAME_AS_OLD_400", "기존 비밀번호와 다른 비밀번호를 사용해 주세요.");
 
     private final HttpStatus httpStatus;
     @Schema(description = "에러 코드", example = "UNKNOWN_ERROR_500", implementation = ErrorCode.class)
