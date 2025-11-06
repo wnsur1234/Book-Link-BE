@@ -51,6 +51,10 @@ public class MemberService {
         if (memberRepository.existsByEmail(signUpReqDto.getEmail())) {
             throw new CustomException(ErrorCode.EMAIL_ALREADY_EXISTS);
         }
+        if (memberRepository.existsByNickname(signUpReqDto.getNickname())) {
+            throw new CustomException(ErrorCode.NICKNAME_ALREADY_EXISTS);
+        }
+
         String encodedPassword = passwordEncoder.encode(signUpReqDto.getPassword());
 
         // Library 엔티티 생성 후 DB 저장

@@ -35,7 +35,10 @@ public enum ErrorCode {
     PASSWORD_POLICY_INVALID(HttpStatus.BAD_REQUEST, "PASSWORD_POLICY_INVALID_400", "비밀번호는 대/소문자·숫자·특수문자 각 1자 이상 포함, 공백 불가"),
 
     @Schema(description = "이미 등록된 이메일입니다.")
-    EMAIL_ALREADY_EXISTS(HttpStatus.CONFLICT, "EMAIL_ALREADY_EXISTS_409", "이미 등록된 이메일입니다."),
+    EMAIL_ALREADY_EXISTS(HttpStatus.CONFLICT, "EMAIL_ALREADY_EXISTS_400", "이미 등록된 이메일입니다."),
+
+    @Schema(description = "이미 등록된 닉네임입니다.")
+    NICKNAME_ALREADY_EXISTS(HttpStatus.CONFLICT, "NICKNAME_ALREADY_EXISTS_409", "이미 등록된 닉네임입니다."),
 
     @Schema(description = "사용자를 찾을 수 없습니다.")
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "USER_NOT_FOUND_404", "사용자를 찾을 수 없습니다.."),
