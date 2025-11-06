@@ -99,4 +99,42 @@ public interface LibraryApiDocs {
             @RequestParam(required = false) String name,
             @PageableDefault(page = 0, size = 10) Pageable pageable
     );
+
+    @Operation(
+            summary = "좋아요 누른 도서관 목록 조회",
+            description = "사용자가 좋아요를 누른 도서관 목록을 조회합니다."
+    )
+    @ApiErrorResponses({ErrorCode.VALIDATION_FAILED, ErrorCode.DATABASE_ERROR,
+            ErrorCode.METHOD_UNAUTHORIZED, ErrorCode.DATA_INTEGRITY_VIOLATION})
+    @GetMapping("/liked")
+    ResponseEntity<BaseResponse<PageResponse<LibraryDetailDto>>> getLikedLibraries(
+            @PageableDefault(page = 0, size = 10) Pageable pageable,
+            @AuthenticationPrincipal(expression = "member") Member member
+    );
+
+    @Operation(
+            summary = "도서관 좋아요 누르기",
+            description = "도서관에 좋아요를 눌러 즐겨찾기 목록에 추가합니다."
+    )
+    @ApiErrorResponses({ErrorCode.VALIDATION_FAILED, ErrorCode.DATABASE_ERROR,
+            ErrorCode.METHOD_UNAUTHORIZED, ErrorCode.DATA_INTEGRITY_VIOLATION,
+            ErrorCode.LIBRARY_ALREADY_LIKE})
+    @PostMapping("/{libraryId}/like")
+    ResponseEntity<BaseResponse<Boolean>> likeLibrary(
+            @PathVariable UUID libraryId,
+            @AuthenticationPrincipal(expression = "member") Member member
+    );
+
+    @Operation(
+            summary = "도서관 좋아요 취소",
+            description = "도서관에 좋아요를 취소하고 즐겨찾기 목록에서 삭제합니다."
+    )
+    @ApiErrorResponses({ErrorCode.VALIDATION_FAILED, ErrorCode.DATABASE_ERROR,
+            ErrorCode.METHOD_UNAUTHORIZED, ErrorCode.DATA_INTEGRITY_VIOLATION,
+            ErrorCode.LIBRARY_LIKE_NOT_FOUND})
+    @DeleteMapping("/{libraryId}/like")
+    ResponseEntity<BaseResponse<Boolean>> unLikeLibrary(
+            @PathVariable UUID libraryId,
+            @AuthenticationPrincipal(expression = "member") Member member
+    );
 }

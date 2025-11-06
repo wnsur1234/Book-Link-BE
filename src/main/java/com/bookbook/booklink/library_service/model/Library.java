@@ -134,4 +134,21 @@ public class Library {
     public void addBook() {
         bookCount++;
     }
+
+    /**
+     * 도서관의 좋아요 수를 1 증가시킵니다.
+     */
+    public void like() {
+        this.likeCount++;
+    }
+
+    /**
+     * 도서관의 좋아요 수를 1 감소시킵니다.
+     * 좋아요 수가 0보다 클 때만 감소시킵니다.
+     */
+    public void unlike() {
+        if (this.likeCount > 0) {
+            this.likeCount--;
+        }
+    }
 }

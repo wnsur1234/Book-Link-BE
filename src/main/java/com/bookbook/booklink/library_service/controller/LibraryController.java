@@ -122,8 +122,36 @@ public class LibraryController implements LibraryApiDocs {
 
         PageResponse<LibraryDetailDto> result = libraryService.getLibraries(lat, lng, name, pageable);
 
-
         return ResponseEntity.ok()
                 .body(BaseResponse.success(result));
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse<PageResponse<LibraryDetailDto>>> getLikedLibraries(
+            @PageableDefault(page = 0, size = 10) Pageable pageable,
+            @AuthenticationPrincipal(expression = "member") Member member
+    ) {
+        return ResponseEntity.ok()
+                .body(BaseResponse.success(libraryService.getLikedLibraries(member, pageable)));
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse<Boolean>> likeLibrary(
+            @PathVariable UUID libraryId,
+            @AuthenticationPrincipal(expression = "member") Member member
+    ) {
+        libraryService.likeLibrary(libraryId, member);
+        return ResponseEntity.ok()
+                .body(BaseResponse.success(Boolean.TRUE));
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse<Boolean>> unLikeLibrary(
+            @PathVariable UUID libraryId,
+            @AuthenticationPrincipal(expression = "member") Member member
+    ) {
+        libraryService.unlikeLibrary(libraryId, member);
+        return ResponseEntity.ok()
+                .body(BaseResponse.success(Boolean.TRUE));
     }
 }
