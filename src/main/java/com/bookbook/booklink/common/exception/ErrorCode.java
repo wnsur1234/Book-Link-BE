@@ -79,6 +79,8 @@ public enum ErrorCode {
      */
     @Schema(description = "해당 ID의 도서관이 존재하지 않습니다.")
     LIBRARY_NOT_FOUND(HttpStatus.BAD_REQUEST, "LIBRARY_NOT_FOUND_400", "해당 ID의 도서관이 존재하지 않습니다."),
+    LIBRARY_ALREADY_LIKE(HttpStatus.BAD_REQUEST, "LIBRARY_ALREADY_LIKE_400", "이미 좋아요를 누른 도서관입니다."),
+    LIBRARY_LIKE_NOT_FOUND(HttpStatus.BAD_REQUEST, "LIBRARY_LIKE_NOT_FOUND_400", "좋아요를 누르지 않은 유저입니다."),
 
     /*
      * Book
@@ -194,7 +196,8 @@ public enum ErrorCode {
     PASSWORD_RESET_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "PASSWORD_RESET_TOKEN_NOT_FOUND_400", "유효하지 않은 비밀번호 재설정 링크입니다."),
     PASSWORD_RESET_TOKEN_EXPIRED(HttpStatus.BAD_REQUEST, "PASSWORD_RESET_TOKEN_EXPIRED_400", "비밀번호 재설정 링크가 만료되었습니다."),
     PASSWORD_CONFIRM_NOT_MATCH(HttpStatus.BAD_REQUEST, "PASSWORD_CONFIRM_NOT_MATCH_400", "비밀번호와 비밀번호 확인이 일치하지 않습니다."),
-    PASSWORD_SAME_AS_OLD(HttpStatus.BAD_REQUEST, "PASSWORD_SAME_AS_OLD_400", "기존 비밀번호와 다른 비밀번호를 사용해 주세요.");
+    PASSWORD_SAME_AS_OLD(HttpStatus.BAD_REQUEST, "PASSWORD_SAME_AS_OLD_400", "기존 비밀번호와 다른 비밀번호를 사용해 주세요."),
+    ;
 
     private final HttpStatus httpStatus;
     @Schema(description = "에러 코드", example = "UNKNOWN_ERROR_500", implementation = ErrorCode.class)
