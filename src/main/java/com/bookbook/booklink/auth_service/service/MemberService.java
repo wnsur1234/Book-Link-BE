@@ -1,5 +1,6 @@
 package com.bookbook.booklink.auth_service.service;
 
+import com.bookbook.booklink.auth_service.model.dto.response.DeactivateResDto;
 import com.bookbook.booklink.common.event.LockEvent;
 import com.bookbook.booklink.common.exception.CustomException;
 import com.bookbook.booklink.common.exception.ErrorCode;
@@ -25,6 +26,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final IdempotencyService idempotencyService;
+    private static final long REACTIVATABLE_DAYS = 7L;
 
     /**
      * 회원가입
@@ -32,7 +34,7 @@ public class MemberService {
      * 동일 traceId 요청 시 중복 처리 방지를 위해 Redis Lock 체크 수행
      *
      * @param signUpReqDto 회원 가입 정보 DTO
-     * @param traceId         요청 멱등성 체크용 ID (클라이언트 전달)
+     * @param traceId      요청 멱등성 체크용 ID (클라이언트 전달)
      * @return 등록된 Member ID
      */
     @Transactional
@@ -58,7 +60,7 @@ public class MemberService {
         String encodedPassword = passwordEncoder.encode(signUpReqDto.getPassword());
 
         // Library 엔티티 생성 후 DB 저장
-        Member newMember = Member.ofLocalSignup(signUpReqDto,encodedPassword);
+        Member newMember = Member.ofLocalSignup(signUpReqDto, encodedPassword);
         Member saveMember = memberRepository.save(newMember);
 
         log.info("[MemberService] [traceId={}] signup member success, name={}",
@@ -79,9 +81,9 @@ public class MemberService {
      * @throws CustomException {@link ErrorCode#USER_NOT_FOUND} - 회원이 존재하지 않는 경우
      */
     @Transactional(readOnly = true)
-    public Member getMemberOrThrow(UUID memberID){
+    public Member getMemberOrThrow(UUID memberID) {
         return memberRepository.findById(memberID)
-                .orElseThrow(()->new CustomException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 
     /**
@@ -123,5 +125,23 @@ public class MemberService {
         member.updateMemberInfo(reqDto);
         return memberRepository.save(member);
     }
+
+    @Transactional
+    public DeactivateResDto deactivateMember(UUID memberID) {
+
+        Member member = getMemberOrThrow(memberID);
+
+        // 이미 비활성화라면 예외 처리 -> 여기부분 확인
+        if (member.isDeactivated()) {
+            throw new CustomException(ErrorCode.MEMBER_ALREADY_INACTIVE);
+        }
+
+        member.deactivate(REACTIVATABLE_DAYS);
+
+        return DeactivateResDto.builder()
+                .success(true)
+                .reactivatableUntil(member.getReactivatableUntil())
+                .build();
+
+    }
 }
-    

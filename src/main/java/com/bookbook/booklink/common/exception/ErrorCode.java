@@ -197,7 +197,13 @@ public enum ErrorCode {
     PASSWORD_RESET_TOKEN_EXPIRED(HttpStatus.BAD_REQUEST, "PASSWORD_RESET_TOKEN_EXPIRED_400", "비밀번호 재설정 링크가 만료되었습니다."),
     PASSWORD_CONFIRM_NOT_MATCH(HttpStatus.BAD_REQUEST, "PASSWORD_CONFIRM_NOT_MATCH_400", "비밀번호와 비밀번호 확인이 일치하지 않습니다."),
     PASSWORD_SAME_AS_OLD(HttpStatus.BAD_REQUEST, "PASSWORD_SAME_AS_OLD_400", "기존 비밀번호와 다른 비밀번호를 사용해 주세요."),
-    ;
+
+    // 회원 탈퇴
+    @Schema(description = "이미 비활성화된 회원입니다.")
+    MEMBER_ALREADY_INACTIVE(HttpStatus.BAD_REQUEST, "MEMBER_ALREADY_INACTIVE_400", "이미 비활성화된 회원입니다."),
+
+    @Schema(description = "비활성화된 계정입니다.")
+    MEMBER_DEACTIVATED(HttpStatus.UNAUTHORIZED, "MEMBER_DEACTIVATED_401", "비활성화된 계정입니다.");
 
     private final HttpStatus httpStatus;
     @Schema(description = "에러 코드", example = "UNKNOWN_ERROR_500", implementation = ErrorCode.class)
