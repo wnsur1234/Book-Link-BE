@@ -42,8 +42,8 @@ public class SingleRoomResDto {
     public static SingleRoomResDto fromEntity(SingleChats chat) {
         return SingleRoomResDto.builder()
                 .chatId(chat.getId())
-                .user1Id(chat.getMe())
-                .user2Id(chat.getChatPartner())
+                .user1Id(chat.getUser1Id())
+                .user2Id(chat.getUser2Id())
                 .lastMessage(chat.getLastMessage())
                 .lastSentAt(chat.getLastSentAt())
                 .createdAt(chat.getCreatedAt())

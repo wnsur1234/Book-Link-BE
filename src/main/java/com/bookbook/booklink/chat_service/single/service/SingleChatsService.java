@@ -36,6 +36,10 @@ public class SingleChatsService {
     @Transactional
     public SingleRoomResDto getOrCreateChatRoom(UUID me, UUID chatPartner) {
 
+        if (me == null || chatPartner == null) {
+            throw new CustomException(ErrorCode.CHAT_ROOM_INVALID_MEMBER);
+        }
+
         UUID u1 = me.compareTo(chatPartner) <= 0 ? me : chatPartner;
         UUID u2 = me.compareTo(chatPartner) <= 0 ? chatPartner : me;
 
@@ -45,6 +49,15 @@ public class SingleChatsService {
         return SingleRoomResDto.fromEntity(chat);
     }
 
+    @Transactional(readOnly = true)
+    public List<SingleRoomResDto> getMyRooms(UUID memberId) {
+        List<SingleChats> rooms =
+                singleChatsRepository.findAllByMemberSorted(memberId);
+
+        return rooms.stream()
+                .map(SingleRoomResDto::fromEntity)
+                .toList();
+    }
 
 
     @Transactional

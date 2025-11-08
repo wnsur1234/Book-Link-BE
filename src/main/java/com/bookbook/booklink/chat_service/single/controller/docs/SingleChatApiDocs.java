@@ -34,6 +34,18 @@ public interface SingleChatApiDocs {
     );
 
     @Operation(
+            summary = "내 1:1 채팅방 모든 목록 조회",
+            description = "로그인한 사용자가 참여 중인 1:1 채팅방 목록들을 반환합니다."
+    )
+    @ApiErrorResponses({ErrorCode.VALIDATION_FAILED, ErrorCode.DATABASE_ERROR,
+            ErrorCode.METHOD_UNAUTHORIZED, ErrorCode.DATA_INTEGRITY_VIOLATION})
+    @GetMapping("/rooms")
+    ResponseEntity<BaseResponse<List<SingleRoomResDto>>> getMyRooms(
+            @AuthenticationPrincipal CustomUserDetails user
+    );
+
+
+    @Operation(
             summary = "메시지 보내기",
             description = "특정 채팅방에 메시지를 전송합니다."
     )

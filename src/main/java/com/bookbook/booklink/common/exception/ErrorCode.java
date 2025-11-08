@@ -74,6 +74,8 @@ public enum ErrorCode {
     CHAT_ROOM_FORBIDDEN(HttpStatus.FORBIDDEN, "CHAT_ROOM_FORBIDDEN_400", "채팅방 참여자가 아닙니다."),
     CHAT_ROOM_CREATE_CONFLICT(HttpStatus.CONFLICT, "CHAT_ROOM_CREATE_CONFLICT_400", "동일한 채팅방이 이미 존재합니다."),
     MESSAGE_SENDER_MISMATCH(HttpStatus.BAD_REQUEST, "MESSAGE_SENDER_MISMATCH_400", "보내는 사용자 정보가 유효하지 않습니다."),
+    CHAT_ROOM_INVALID_MEMBER(HttpStatus.BAD_REQUEST, "CHAT_ROOM_INVALID_MEMBER_400", "채팅방 생성 시 유효하지 않은 사용자 정보입니다."),
+
     /*
      * Library
      */

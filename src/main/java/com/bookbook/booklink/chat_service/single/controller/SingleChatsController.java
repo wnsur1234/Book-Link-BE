@@ -38,6 +38,15 @@ public class SingleChatsController implements SingleChatApiDocs {
     }
 
     @Override
+    public ResponseEntity<BaseResponse<List<SingleRoomResDto>>> getMyRooms(
+            @AuthenticationPrincipal CustomUserDetails user
+    ) {
+        UUID me = user.getMember().getId();
+        List<SingleRoomResDto> rooms = singleChatsService.getMyRooms(me);
+        return ResponseEntity.ok(BaseResponse.success(rooms));
+    }
+
+    @Override
     public ResponseEntity<BaseResponse<MessageResDto>> sendMessage(
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestBody MessageReqDto dto
