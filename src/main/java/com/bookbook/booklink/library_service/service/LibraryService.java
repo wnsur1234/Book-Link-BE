@@ -9,10 +9,12 @@ import com.bookbook.booklink.common.exception.CustomException;
 import com.bookbook.booklink.common.exception.ErrorCode;
 import com.bookbook.booklink.common.service.IdempotencyService;
 import com.bookbook.booklink.library_service.model.Library;
+import com.bookbook.booklink.library_service.model.LibraryLikes;
 import com.bookbook.booklink.library_service.model.dto.request.LibraryRegDto;
 import com.bookbook.booklink.library_service.model.dto.request.LibraryUpdateDto;
 import com.bookbook.booklink.library_service.model.dto.response.LibraryDetailDto;
 import com.bookbook.booklink.library_service.model.dto.response.LibraryDistanceProjection;
+import com.bookbook.booklink.library_service.repository.LibraryLikesRepository;
 import com.bookbook.booklink.library_service.repository.LibraryRepository;
 import com.bookbook.booklink.review_service.model.dto.response.ReviewListDto;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +42,7 @@ import java.util.stream.Collectors;
 public class LibraryService {
 
     private final LibraryRepository libraryRepository;
+    private final LibraryLikesRepository libraryLikesRepository;
     private final IdempotencyService idempotencyService;
     private final LibraryBookService libraryBookService;
 
@@ -222,4 +225,50 @@ public class LibraryService {
     public Library findByUserId(UUID userId) {
         return libraryRepository.findByMemberId(userId);
     }
+
+    /**
+     * 좋아요 누르기
+     */
+    public void likeLibrary(UUID libraryId, Member member) {
+        Library library = findById(libraryId);
+
+        if (libraryLikesRepository.existsByLibraryAndUserId(library, member.getId())) {
+            throw new CustomException(ErrorCode.LIBRARY_ALREADY_LIKE);
+        }
+
+        LibraryLikes newLike = LibraryLikes.create(library, member.getId());
+
+        library.like();
+        libraryLikesRepository.save(newLike);
+
+    }
+
+    /**
+     * 좋아요 취소
+     */
+    public void unlikeLibrary(UUID libraryId, Member member) {
+        Library library = findById(libraryId);
+
+        LibraryLikes existingLike = libraryLikesRepository.findByLibraryAndUserId(library, member.getId())
+                .orElseThrow(() -> new CustomException(ErrorCode.LIBRARY_LIKE_NOT_FOUND));
+
+        library.unlike();
+        libraryLikesRepository.delete(existingLike);
+    }
+
+    public Page<Library> findLikedLibraries(UUID userId, Pageable pageable) {
+        Page<LibraryLikes> libraryLikes = libraryLikesRepository.findAllByUserId(userId, pageable);
+
+        return libraryLikes.map(LibraryLikes::getLibrary);
+    }
+
+    public PageResponse<LibraryDetailDto> getLikedLibraries(Member member, Pageable pageable) {
+
+        Page<Library> libraryPage = findLikedLibraries(member.getId(), pageable);
+
+        Page<LibraryDetailDto> dtoPage = libraryPage.map(LibraryDetailDto::fromEntity);
+        return PageResponse.from(dtoPage);
+    }
+
+
 }
