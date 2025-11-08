@@ -30,16 +30,14 @@ public class SingleChatsService {
      * - user1-user2, user2-user1 조합을 모두 확인합니다. <br>
      * - 기존 채팅방이 없을 경우 새로 생성 후 저장합니다.
      *
-     * @param dto 채팅방 생성 요청 DTO (user1Id, user2Id 포함)
+     * @param me 채팅방 생성 요청 DTO (user1Id, user2Id 포함)
      * @return 생성되었거나 조회된 채팅방 응답 DTO
      */
     @Transactional
-    public SingleRoomResDto getOrCreateChatRoom(SingleRoomReqDto dto) {
+    public SingleRoomResDto getOrCreateChatRoom(UUID me, UUID chatPartner) {
 
-        UUID a = dto.getUser1Id();
-        UUID b = dto.getUser2Id();
-        UUID u1 = a.compareTo(b) <= 0 ? a : b;
-        UUID u2 = a.compareTo(b) <= 0 ? b : a;
+        UUID u1 = me.compareTo(chatPartner) <= 0 ? me : chatPartner;
+        UUID u2 = me.compareTo(chatPartner) <= 0 ? chatPartner : me;
 
         SingleChats chat = singleChatsRepository.findByUser1IdAndUser2Id(u1, u2)
                 .orElseGet(() -> singleChatsRepository.save(SingleChats.createNormalized(u1, u2)));

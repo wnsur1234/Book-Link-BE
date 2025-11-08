@@ -27,9 +27,10 @@ public interface SingleChatApiDocs {
     )
     @ApiErrorResponses({ErrorCode.VALIDATION_FAILED, ErrorCode.DATABASE_ERROR,
             ErrorCode.METHOD_UNAUTHORIZED, ErrorCode.DATA_INTEGRITY_VIOLATION})
-    @PostMapping("/rooms")
+    @PostMapping("/room")
     public ResponseEntity<BaseResponse<SingleRoomResDto>> createOrGetRoom(
-            @RequestBody SingleRoomReqDto dto
+            @RequestBody SingleRoomReqDto dto,
+            @AuthenticationPrincipal CustomUserDetails user
     );
 
     @Operation(
@@ -49,7 +50,7 @@ public interface SingleChatApiDocs {
     )
     @ApiErrorResponses({ErrorCode.VALIDATION_FAILED, ErrorCode.DATABASE_ERROR,
             ErrorCode.METHOD_UNAUTHORIZED, ErrorCode.DATA_INTEGRITY_VIOLATION})
-    @GetMapping("/rooms/{chatId}/messages")
+    @GetMapping("/room/{chatId}/messages")
     public ResponseEntity<BaseResponse<List<MessageResDto>>> getMessages(
             @PathVariable UUID chatId);
 }
