@@ -1,6 +1,10 @@
 package com.bookbook.booklink.auth_service.service;
 
+import com.bookbook.booklink.auth_service.model.Member;
 import com.bookbook.booklink.auth_service.model.dto.request.LoginReqDto;
+import com.bookbook.booklink.auth_service.repository.MemberRepository;
+import com.bookbook.booklink.common.exception.CustomException;
+import com.bookbook.booklink.common.exception.ErrorCode;
 import com.bookbook.booklink.common.jwt.service.RefreshTokenService;
 import com.bookbook.booklink.common.jwt.util.JWTUtil;
 import lombok.AllArgsConstructor;
@@ -19,6 +23,7 @@ public class AuthService {
     private final RefreshTokenService refreshTokenService;
     private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;
+    private final MemberRepository memberRepository;
 
     public void logout(String email) {
         refreshTokenService.logout(email);
@@ -37,6 +42,18 @@ public class AuthService {
 
         // 인증 성공 시 이메일/권한 획득
         String email = authentication.getName();
+
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        // 3. 비활성 계정 복구/차단 로직
+        if (member.canReactivate()) {
+            // 아직 복구 가능 기간 이내의 비활성 계정 → 자동 ACTIVE로 복구
+            member.reactivate();
+        } else if (member.isDeactivated()) {
+            // 복구 기간도 지났는데 여전히 비활성 → 로그인 차단
+            throw new CustomException(ErrorCode.MEMBER_DEACTIVATED);
+        }
 
         // 권한 → JWT role 클레임(OWNER/CUSTOMER)로 정규화
         String role = authentication.getAuthorities().stream()
