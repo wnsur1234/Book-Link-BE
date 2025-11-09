@@ -32,7 +32,7 @@ public class MemberController implements MemberApiDocs {
             @Valid @RequestBody SignUpReqDto request,
             @RequestHeader(value = "Trace-Id", required = false) String traceId
     ) {
-        Member saved = memberService.signUp(request, traceId);
+        memberService.signUp(request, traceId);
         return ResponseEntity.ok()
                 .body(BaseResponse.success(Boolean.TRUE));
     }
