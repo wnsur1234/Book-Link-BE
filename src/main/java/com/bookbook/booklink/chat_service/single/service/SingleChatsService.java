@@ -12,12 +12,14 @@ import com.bookbook.booklink.chat_service.single.repository.SingleChatsRepositor
 import com.bookbook.booklink.common.exception.CustomException;
 import com.bookbook.booklink.common.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SingleChatsService {
@@ -51,20 +53,25 @@ public class SingleChatsService {
 
     @Transactional
     public MessageResDto saveChatMessages(Member member, MessageReqDto dto) {
-        System.out.println("📩 saveChatMessages 호출됨: senderId=" + member.getId() + ", chatId=" + dto.getChatId());
+
+        UUID memberId = member.getId();
+        UUID chatId = dto.getChatId();
+
+        log.debug("[SingleChatsService] saveChatMessages called. memberId={}, chatId={}", memberId, chatId);
+
         SingleChats room = singleChatsRepository.findById(dto.getChatId())
                 .orElseThrow(() -> new CustomException(ErrorCode.CHAT_ROOM_NOT_FOUND));
-        System.out.println("✅ room 조회 성공: roomId=" + room.getId());
-        if (!room.hasMember(member.getId())) {
-            System.out.println("❌ senderId가 room 멤버 아님!");
-            throw new CustomException(ErrorCode.CHAT_ROOM_FORBIDDEN);
-        }
+
+        if (!room.hasMember(member.getId())) {throw new CustomException(ErrorCode.CHAT_ROOM_FORBIDDEN);}
 
         ChatMessages saved = chatMessagesService.saveMessagesEntity(member,dto);
-        System.out.println("💾 message 저장됨: id=" + saved.getId());
+
 
         room.updateLastMessage(saved.getText(), saved.getSentAt());
         singleChatsRepository.save(room);
+
+        log.info("[SingleChatsService] Last message updated. roomId={}, senderId={}",
+                room.getId(), memberId);
 
         return MessageResDto.fromEntity(saved);
     }
