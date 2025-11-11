@@ -8,6 +8,7 @@ import com.bookbook.booklink.common.exception.CustomException;
 import com.bookbook.booklink.common.exception.ErrorCode;
 import com.bookbook.booklink.common.jwt.CustomUserDetail.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Controller;
 import java.security.Principal;
 import java.util.UUID;
 
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 public class ChatWebSocketController {
@@ -29,25 +31,21 @@ public class ChatWebSocketController {
     // 클라이언트가 /pub/chat.send 로 메시지 발행
     @MessageMapping("/chat/send")
     public void sendMessage(
-            MessageReqDto dto,
-            // @AuthenticationPrincipal CustomUserDetails userDetails
-            Principal principal
+            MessageReqDto dto, Principal principal
     ) {
-
-        System.out.println("🎯 Controller 진입, principal = " + principal);
-        if (principal == null) {
-            System.out.println("❌ principal is NULL");
-            return;
-        }
-
 
         CustomUserDetails userDetails = (CustomUserDetails) principal;
         Member member = userDetails.getMember();
+
+        log.debug("[ChatWebSocketController] WebSocket send request. memberId={}, chatId={}",
+                member.getId(), dto.getChatId());
 
         MessageResDto saved = singleChatsService.saveChatMessages(member, dto);
 
         // 구독자에게 메시지 전달
         messagingTemplate.convertAndSend("/sub/chat/" + dto.getChatId(), saved);
-        System.out.println("✅ Controller 인증 유저 ID = " + member.getId());
+
+        log.info("[ChatWebSocketController] WebSocket message sent. memberId={}, chatId={}",
+                member.getId(), dto.getChatId());
     }
 }

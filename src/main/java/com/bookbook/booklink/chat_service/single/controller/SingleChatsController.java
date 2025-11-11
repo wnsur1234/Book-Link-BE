@@ -9,6 +9,7 @@ import com.bookbook.booklink.chat_service.single.service.SingleChatsService;
 import com.bookbook.booklink.common.dto.BaseResponse;
 import com.bookbook.booklink.common.jwt.CustomUserDetail.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class SingleChatsController implements SingleChatApiDocs {
@@ -26,11 +28,24 @@ public class SingleChatsController implements SingleChatApiDocs {
 
     @Override
     public ResponseEntity<BaseResponse<SingleRoomResDto>> createOrGetRoom(
-            @RequestBody SingleRoomReqDto reqDto
+            @RequestBody SingleRoomReqDto reqDto,
+            @AuthenticationPrincipal CustomUserDetails user
     ) {
+        UUID me = user.getMember().getId();
+        UUID chatPartner = reqDto.getChatPartner();
+
         SingleRoomResDto response =
-                singleChatsService.getOrCreateChatRoom(reqDto);
+                singleChatsService.getOrCreateChatRoom(me,chatPartner);
         return ResponseEntity.ok(BaseResponse.success(response));
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse<List<SingleRoomResDto>>> getMyRooms(
+            @AuthenticationPrincipal CustomUserDetails user
+    ) {
+        UUID me = user.getMember().getId();
+        List<SingleRoomResDto> rooms = singleChatsService.getMyRooms(me);
+        return ResponseEntity.ok(BaseResponse.success(rooms));
     }
 
     @Override
@@ -38,9 +53,16 @@ public class SingleChatsController implements SingleChatApiDocs {
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestBody MessageReqDto dto
     ) {
-        System.out.println(user.getMember().getId());
-        MessageResDto response =
-                singleChatsService.saveChatMessages(user.getMember(),dto);
+
+        log.info("[SingleChatsController] sendMessage called. user.getMember().getId()={}, chatId={}",
+                user.getMember().getId(), dto.getChatId());
+
+        MessageResDto response = singleChatsService.saveChatMessages(user.getMember(), dto);
+
+        log.info("[SingleChatsController] sendMessage called success. user.getMember().getId()={}, chatId={}",
+
+                user.getMember().getId(), dto.getChatId());
+
         return ResponseEntity.ok(BaseResponse.success(response));
     }
 
@@ -48,7 +70,12 @@ public class SingleChatsController implements SingleChatApiDocs {
     public ResponseEntity<BaseResponse<List<MessageResDto>>> getMessages(
             @PathVariable UUID chatId
     ) {
+
+        log.debug("[SingleChatsController] getMessages called. chatId={}", chatId);
+
         List<MessageResDto> response = singleChatsService.getChatMessages(chatId);
+
+        log.debug("[SingleChatsController] getMessages called success. chatId={}", chatId);
         return ResponseEntity.ok(BaseResponse.success(response));
     }
 }

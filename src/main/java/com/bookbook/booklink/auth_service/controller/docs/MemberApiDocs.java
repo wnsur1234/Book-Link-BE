@@ -1,15 +1,16 @@
 package com.bookbook.booklink.auth_service.controller.docs;
 
 import com.bookbook.booklink.auth_service.model.dto.request.PasswordCheckReqDto;
-import com.bookbook.booklink.auth_service.model.dto.request.PasswordResetReqDto;
-import com.bookbook.booklink.common.exception.ApiErrorResponses;
-import com.bookbook.booklink.common.dto.BaseResponse;
-import com.bookbook.booklink.common.exception.ErrorCode;
-import com.bookbook.booklink.common.jwt.CustomUserDetail.CustomUserDetails;
 import com.bookbook.booklink.auth_service.model.dto.request.SignUpReqDto;
 import com.bookbook.booklink.auth_service.model.dto.request.UpdateReqDto;
+import com.bookbook.booklink.auth_service.model.dto.response.DeactivateResDto;
 import com.bookbook.booklink.auth_service.model.dto.response.ProfileResDto;
+import com.bookbook.booklink.common.dto.BaseResponse;
+import com.bookbook.booklink.common.exception.ApiErrorResponses;
+import com.bookbook.booklink.common.exception.ErrorCode;
+import com.bookbook.booklink.common.jwt.CustomUserDetail.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -65,5 +66,15 @@ public interface MemberApiDocs {
     public ResponseEntity<BaseResponse<Boolean>> checkPassword(
             @Valid @RequestBody PasswordCheckReqDto passwordCheckReqDto,
             @AuthenticationPrincipal CustomUserDetails user
+    );
+
+    @Operation(
+            summary = "회원 탈퇴(계정 비활성화)",
+            description = "현재 로그인한 사용자의 계정을 비활성화(소프트 삭제)합니다."
+    )
+    @ApiErrorResponses({ErrorCode.METHOD_UNAUTHORIZED, ErrorCode.MEMBER_ALREADY_INACTIVE})
+    @DeleteMapping("/deactivate")
+    ResponseEntity<BaseResponse<DeactivateResDto>> deactivateMe(
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails user
     );
 }

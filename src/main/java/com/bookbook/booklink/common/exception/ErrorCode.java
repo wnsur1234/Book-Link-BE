@@ -74,6 +74,8 @@ public enum ErrorCode {
     CHAT_ROOM_FORBIDDEN(HttpStatus.FORBIDDEN, "CHAT_ROOM_FORBIDDEN_400", "채팅방 참여자가 아닙니다."),
     CHAT_ROOM_CREATE_CONFLICT(HttpStatus.CONFLICT, "CHAT_ROOM_CREATE_CONFLICT_400", "동일한 채팅방이 이미 존재합니다."),
     MESSAGE_SENDER_MISMATCH(HttpStatus.BAD_REQUEST, "MESSAGE_SENDER_MISMATCH_400", "보내는 사용자 정보가 유효하지 않습니다."),
+    CHAT_ROOM_INVALID_MEMBER(HttpStatus.BAD_REQUEST, "CHAT_ROOM_INVALID_MEMBER_400", "채팅방 생성 시 유효하지 않은 사용자 정보입니다."),
+
     /*
      * Library
      */
@@ -197,7 +199,13 @@ public enum ErrorCode {
     PASSWORD_RESET_TOKEN_EXPIRED(HttpStatus.BAD_REQUEST, "PASSWORD_RESET_TOKEN_EXPIRED_400", "비밀번호 재설정 링크가 만료되었습니다."),
     PASSWORD_CONFIRM_NOT_MATCH(HttpStatus.BAD_REQUEST, "PASSWORD_CONFIRM_NOT_MATCH_400", "비밀번호와 비밀번호 확인이 일치하지 않습니다."),
     PASSWORD_SAME_AS_OLD(HttpStatus.BAD_REQUEST, "PASSWORD_SAME_AS_OLD_400", "기존 비밀번호와 다른 비밀번호를 사용해 주세요."),
-    ;
+
+    // 회원 탈퇴
+    @Schema(description = "이미 비활성화된 회원입니다.")
+    MEMBER_ALREADY_INACTIVE(HttpStatus.BAD_REQUEST, "MEMBER_ALREADY_INACTIVE_400", "이미 비활성화된 회원입니다."),
+
+    @Schema(description = "비활성화된 계정입니다.")
+    MEMBER_DEACTIVATED(HttpStatus.UNAUTHORIZED, "MEMBER_DEACTIVATED_401", "비활성화된 계정입니다.");
 
     private final HttpStatus httpStatus;
     @Schema(description = "에러 코드", example = "UNKNOWN_ERROR_500", implementation = ErrorCode.class)

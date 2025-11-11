@@ -12,12 +12,14 @@ import com.bookbook.booklink.chat_service.single.repository.SingleChatsRepositor
 import com.bookbook.booklink.common.exception.CustomException;
 import com.bookbook.booklink.common.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SingleChatsService {
@@ -30,16 +32,18 @@ public class SingleChatsService {
      * - user1-user2, user2-user1 조합을 모두 확인합니다. <br>
      * - 기존 채팅방이 없을 경우 새로 생성 후 저장합니다.
      *
-     * @param dto 채팅방 생성 요청 DTO (user1Id, user2Id 포함)
+     * @param me 채팅방 생성 요청 DTO (user1Id, user2Id 포함)
      * @return 생성되었거나 조회된 채팅방 응답 DTO
      */
     @Transactional
-    public SingleRoomResDto getOrCreateChatRoom(SingleRoomReqDto dto) {
+    public SingleRoomResDto getOrCreateChatRoom(UUID me, UUID chatPartner) {
 
-        UUID a = dto.getUser1Id();
-        UUID b = dto.getUser2Id();
-        UUID u1 = a.compareTo(b) <= 0 ? a : b;
-        UUID u2 = a.compareTo(b) <= 0 ? b : a;
+        if (me == null || chatPartner == null) {
+            throw new CustomException(ErrorCode.CHAT_ROOM_INVALID_MEMBER);
+        }
+
+        UUID u1 = me.compareTo(chatPartner) <= 0 ? me : chatPartner;
+        UUID u2 = me.compareTo(chatPartner) <= 0 ? chatPartner : me;
 
         SingleChats chat = singleChatsRepository.findByUser1IdAndUser2Id(u1, u2)
                 .orElseGet(() -> singleChatsRepository.save(SingleChats.createNormalized(u1, u2)));
@@ -47,24 +51,38 @@ public class SingleChatsService {
         return SingleRoomResDto.fromEntity(chat);
     }
 
+    @Transactional(readOnly = true)
+    public List<SingleRoomResDto> getMyRooms(UUID memberId) {
+        List<SingleChats> rooms =
+                singleChatsRepository.findAllByMemberSorted(memberId);
+
+        return rooms.stream()
+                .map(SingleRoomResDto::fromEntity)
+                .toList();
+    }
 
 
     @Transactional
     public MessageResDto saveChatMessages(Member member, MessageReqDto dto) {
-        System.out.println("📩 saveChatMessages 호출됨: senderId=" + member.getId() + ", chatId=" + dto.getChatId());
+
+        UUID memberId = member.getId();
+        UUID chatId = dto.getChatId();
+
+        log.debug("[SingleChatsService] saveChatMessages called. memberId={}, chatId={}", memberId, chatId);
+
         SingleChats room = singleChatsRepository.findById(dto.getChatId())
                 .orElseThrow(() -> new CustomException(ErrorCode.CHAT_ROOM_NOT_FOUND));
-        System.out.println("✅ room 조회 성공: roomId=" + room.getId());
-        if (!room.hasMember(member.getId())) {
-            System.out.println("❌ senderId가 room 멤버 아님!");
-            throw new CustomException(ErrorCode.CHAT_ROOM_FORBIDDEN);
-        }
+
+        if (!room.hasMember(member.getId())) {throw new CustomException(ErrorCode.CHAT_ROOM_FORBIDDEN);}
 
         ChatMessages saved = chatMessagesService.saveMessagesEntity(member,dto);
-        System.out.println("💾 message 저장됨: id=" + saved.getId());
+
 
         room.updateLastMessage(saved.getText(), saved.getSentAt());
         singleChatsRepository.save(room);
+
+        log.info("[SingleChatsService] Last message updated. roomId={}, senderId={}",
+                room.getId(), memberId);
 
         return MessageResDto.fromEntity(saved);
     }
