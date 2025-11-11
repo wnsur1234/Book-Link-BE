@@ -27,14 +27,15 @@ public class BorrowController implements BorrowApiDocs {
     public ResponseEntity<BaseResponse<UUID>> borrowBook(
             @Valid @RequestBody BorrowRequestDto borrowRequestDto,
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @RequestHeader("Trace-Id") String traceId
+            @RequestHeader("Trace-Id") String traceId,
+            @RequestParam UUID chatId
     ) {
         UUID userId = customUserDetails.getMember().getId();
 
         log.info("[BorrowController] [traceId = {}, userId = {}] borrow book request received, borrowRequestDto={}",
                 traceId, userId, borrowRequestDto);
 
-        UUID borrowId = borrowService.borrowBook(customUserDetails.getMember(), traceId, borrowRequestDto);
+        UUID borrowId = borrowService.borrowBook(customUserDetails.getMember(), traceId, borrowRequestDto,chatId);
 
         log.info("[BorrowController] [traceId = {}, userId = {}] borrow book request success, borrowId={}",
                 traceId, userId, borrowId);
