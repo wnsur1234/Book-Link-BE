@@ -32,7 +32,6 @@ jobs:
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v1
 
-
       - name: Build, Tag and Push image
         env:
           ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }} # optional
