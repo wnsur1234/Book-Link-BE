@@ -38,7 +38,7 @@ public class MemberService {
      * @return 등록된 Member ID
      */
     @Transactional
-    public Member signUp(SignUpReqDto signUpReqDto, String traceId) {
+    public void signUp(SignUpReqDto signUpReqDto, String traceId) {
 
         log.info("[MemberService] [traceId={}] signup member initiate, name={}",
                 traceId, signUpReqDto.getName());
@@ -65,8 +65,6 @@ public class MemberService {
 
         log.info("[MemberService] [traceId={}] signup member success, name={}",
                 traceId, saveMember.getName());
-
-        return saveMember;
     }
 
     /**
