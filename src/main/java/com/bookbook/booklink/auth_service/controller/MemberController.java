@@ -1,6 +1,7 @@
 package com.bookbook.booklink.auth_service.controller;
 
 import com.bookbook.booklink.auth_service.model.dto.request.PasswordCheckReqDto;
+import com.bookbook.booklink.auth_service.model.dto.response.DeactivateResDto;
 import com.bookbook.booklink.auth_service.service.PasswordCheckService;
 import com.bookbook.booklink.common.dto.BaseResponse;
 import com.bookbook.booklink.common.jwt.CustomUserDetail.CustomUserDetails;
@@ -66,6 +67,17 @@ public class MemberController implements MemberApiDocs {
         Boolean matches = passwordCheckService.verifyPassword(user.getMember().getEmail(), passwordCheckReqDto.getPassword());
         return ResponseEntity.ok()
                 .body(BaseResponse.success(matches));
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse<DeactivateResDto>> deactivateMe(
+            @AuthenticationPrincipal CustomUserDetails user
+    ){
+        UUID memberId = user.getMember().getId();
+        DeactivateResDto response = memberService.deactivateMember(memberId);
+
+        return ResponseEntity.ok()
+                .body(BaseResponse.success(response));
     }
 }
     

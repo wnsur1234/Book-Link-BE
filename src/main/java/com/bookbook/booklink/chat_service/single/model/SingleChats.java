@@ -43,10 +43,10 @@ public class SingleChats {
     @Schema(description = "생성 시각", example = "2025-09-28T15:00:00")
     private LocalDateTime createdAt;
 
-    @Schema(description = "참여자 1 ID", example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")
+    @Schema(description = "생성자 ID", example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")
     private UUID user1Id;
 
-    @Schema(description = "참여자 2 ID", example = "7fa85f64-5717-4562-b3fc-2c963f66afa6")
+    @Schema(description = "참여자 ID", example = "7fa85f64-5717-4562-b3fc-2c963f66afa6")
     private UUID user2Id;
 
     public static SingleChats createNormalized(UUID a, UUID b) {

@@ -9,13 +9,14 @@ import com.bookbook.booklink.common.jwt.CustomUserDetail.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @RequestMapping("/api/auth")
-@Tag(name = "로그아웃 API", description = "로그아웃관련 RefreshToken 제거 API")
+@Tag(name = "Auth API", description = "인증/인가 관련 API")
 public interface AuthApiDocs {
 
     @Operation(
@@ -33,6 +34,6 @@ public interface AuthApiDocs {
             description = "이메일/비밀번호로 로그인하고 JWT(Access/Refresh)를 발급합니다."
     )
     @PostMapping("/login")
-    public ResponseEntity<BaseResponse<TokenResDto>> login(@RequestBody LoginReqDto loginReqDto);
+    public ResponseEntity<BaseResponse<TokenResDto>> login(@Valid @RequestBody LoginReqDto loginReqDto);
 
 }

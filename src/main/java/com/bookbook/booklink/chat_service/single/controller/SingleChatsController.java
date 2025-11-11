@@ -28,16 +28,24 @@ public class SingleChatsController implements SingleChatApiDocs {
 
     @Override
     public ResponseEntity<BaseResponse<SingleRoomResDto>> createOrGetRoom(
-            @RequestBody SingleRoomReqDto reqDto
+            @RequestBody SingleRoomReqDto reqDto,
+            @AuthenticationPrincipal CustomUserDetails user
     ) {
-        log.info("[SingleChatsController] createOrGetRoom called. user1Id={}, user2Id={}",
-                reqDto.getUser1Id(), reqDto.getUser2Id());
+        UUID me = user.getMember().getId();
+        UUID chatPartner = reqDto.getChatPartner();
 
-        SingleRoomResDto response = singleChatsService.getOrCreateChatRoom(reqDto);
-
-        log.info("[SingleChatsController] createOrGetRoom called success. user1Id={}, user2Id={}",
-                reqDto.getUser1Id(), reqDto.getUser2Id());
+        SingleRoomResDto response =
+                singleChatsService.getOrCreateChatRoom(me,chatPartner);
         return ResponseEntity.ok(BaseResponse.success(response));
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse<List<SingleRoomResDto>>> getMyRooms(
+            @AuthenticationPrincipal CustomUserDetails user
+    ) {
+        UUID me = user.getMember().getId();
+        List<SingleRoomResDto> rooms = singleChatsService.getMyRooms(me);
+        return ResponseEntity.ok(BaseResponse.success(rooms));
     }
 
     @Override
