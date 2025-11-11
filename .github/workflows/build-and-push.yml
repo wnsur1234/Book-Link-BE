@@ -1,0 +1,51 @@
+name: build-and-push.yml
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build jar
+        run: |
+          chmod +x ./gradlew
+          ./gradlew clean build -x test
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v1
+
+
+      - name: Build, Tag and Push image
+        env:
+          ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }} # optional
+          REGION: ${{ secrets.AWS_REGION }}
+          REPO: ${{ secrets.ECR_REPOSITORY }}
+        run: |
+          IMAGE_TAG=$(date +%s)
+          docker build -t $REPO .
+          aws ecr create-repository --repository-name $REPO || true
+          docker tag $REPO:latest $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPO:$IMAGE_TAG
+          docker tag $REPO:latest $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPO:latest
+          docker push $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPO:$IMAGE_TAG
+          docker push $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPO:latest
+
+      - name: Output pushed image
+        run: echo "Pushed $REPO:$IMAGE_TAG"
