@@ -133,13 +133,13 @@ public class Member {
             orphanRemoval = true)
     private Point point;
 
-    public Member linkPoint(Point point) {
-        this.point = point;
-        return this;
-    }
+    // ✅ 언제까지 다시 로그인하면 복구 가능한지
+    @Schema(description = "재활성화 가능 마감일", example = "2025-11-06" +
+            "T23:59:59")
+    private LocalDateTime reactivatableUntil;
 
     public static Member ofLocalSignup(SignUpReqDto req, String encodedPassword) {
-        Member member = Member.builder()
+        return Member.builder()
                 .email(req.getEmail())
                 .password(encodedPassword)
                 .name(req.getName())
@@ -151,11 +151,6 @@ public class Member {
                 .role(Role.CUSTOMER)
                 .status(Status.ACTIVE)
                 .build();
-        Point point = Point.builder()
-                .member(member)
-                .balance(0)
-                .build();
-        return member.linkPoint(point);
     }
 
     /**
@@ -171,5 +166,34 @@ public class Member {
 
     public void changePassword(String encodedPassword){
         this.password = encodedPassword;
+    }
+
+    /**
+     * 계정 비활성화(소프트 탈퇴)
+     * @param reactivatableDays 다시 로그인하면 복구 가능한 일 수 (예: 365일)
+     */
+    public void deactivate(long reactivatableDays) {
+        this.status = Status.DEACTIVATED;
+        this.deletedAt = LocalDateTime.now();
+        this.reactivatableUntil = this.deletedAt.plusDays(reactivatableDays);
+    }
+
+    /** 계정 재활성화 */
+    public void reactivate() {
+        this.status = Status.ACTIVE;
+        this.deletedAt = null;
+        this.reactivatableUntil = null;
+    }
+
+    /** 현재 비활성 상태인지 여부 */
+    public boolean isDeactivated() {
+        return this.status == Status.DEACTIVATED;
+    }
+
+    /** 지금 시점에 재활성화가 가능한지 여부 */
+    public boolean canReactivate() {
+        return this.isDeactivated()
+                && this.reactivatableUntil != null
+                && LocalDateTime.now().isBefore(this.reactivatableUntil);
     }
 }

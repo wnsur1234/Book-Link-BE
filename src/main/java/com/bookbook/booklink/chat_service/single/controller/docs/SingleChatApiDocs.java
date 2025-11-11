@@ -27,10 +27,23 @@ public interface SingleChatApiDocs {
     )
     @ApiErrorResponses({ErrorCode.VALIDATION_FAILED, ErrorCode.DATABASE_ERROR,
             ErrorCode.METHOD_UNAUTHORIZED, ErrorCode.DATA_INTEGRITY_VIOLATION})
-    @PostMapping("/rooms")
+    @PostMapping("/room")
     public ResponseEntity<BaseResponse<SingleRoomResDto>> createOrGetRoom(
-            @RequestBody SingleRoomReqDto dto
+            @RequestBody SingleRoomReqDto dto,
+            @AuthenticationPrincipal CustomUserDetails user
     );
+
+    @Operation(
+            summary = "내 1:1 채팅방 모든 목록 조회",
+            description = "로그인한 사용자가 참여 중인 1:1 채팅방 목록들을 반환합니다."
+    )
+    @ApiErrorResponses({ErrorCode.VALIDATION_FAILED, ErrorCode.DATABASE_ERROR,
+            ErrorCode.METHOD_UNAUTHORIZED, ErrorCode.DATA_INTEGRITY_VIOLATION})
+    @GetMapping("/rooms")
+    ResponseEntity<BaseResponse<List<SingleRoomResDto>>> getMyRooms(
+            @AuthenticationPrincipal CustomUserDetails user
+    );
+
 
     @Operation(
             summary = "메시지 보내기",
@@ -49,7 +62,7 @@ public interface SingleChatApiDocs {
     )
     @ApiErrorResponses({ErrorCode.VALIDATION_FAILED, ErrorCode.DATABASE_ERROR,
             ErrorCode.METHOD_UNAUTHORIZED, ErrorCode.DATA_INTEGRITY_VIOLATION})
-    @GetMapping("/rooms/{chatId}/messages")
+    @GetMapping("/room/{chatId}/messages")
     public ResponseEntity<BaseResponse<List<MessageResDto>>> getMessages(
             @PathVariable UUID chatId);
 }
