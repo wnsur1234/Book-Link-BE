@@ -164,17 +164,17 @@ public class BorrowService {
 
     private void sendBorrowRequestMessage(UUID chatId, Member sender, Borrow borrow) {
 
-        // ✅ 1. 저장용 DTO 생성 (기존 WebSocket에서 쓰던 형태 재사용)
+        // 저장용 DTO 생성 (기존 WebSocket에서 쓰던 형태 재사용)
         MessageReqDto messageReqDto = MessageReqDto.builder()
                 .chatId(chatId)
                 .content("[대여 요청] " + borrow.getLibraryBookCopy().getLibraryBook().getBook().getTitle())
                 .type(MessageType.SYSTEM)  // 시스템 메시지용 타입이 있다면
                 .build();
 
-        // ✅ 2. 기존 로직 재사용: DB 저장
+        // 기존 로직 재사용: DB 저장
         MessageResDto saved = singleChatsService.saveChatMessages(sender, messageReqDto);
 
-        // ✅ 3. WebSocket 구독자에게 전송
+        // WebSocket 구독자에게 전송
         messagingTemplate.convertAndSend("/sub/chat/" + chatId, saved);
     }
 }
