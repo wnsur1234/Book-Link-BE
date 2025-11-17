@@ -179,6 +179,14 @@ public class BorrowService {
         messagingTemplate.convertAndSend("/sub/chat/" + chatId, saved);
     }
 
+    /**
+     * 책 대여 확정 요청 메세지를 보냅니다.
+     * 단순히 사용자 요청을 채팅으로 알려주는 용도입니다.
+     * @param userId 보내는 주체 ID
+     * @param traceId 멱등성 추적 ID
+     * @param borrowId 빌리는 책에 대한 ID
+     * @param chatId 대화 하고있는 채팅방 ID
+     */
     @Transactional(readOnly = true)
     public void sendBorrowConfirmRequest(UUID userId, String traceId, UUID borrowId, UUID chatId) {
 
@@ -204,6 +212,14 @@ public class BorrowService {
                 traceId, userId, borrowId, chatId);
     }
 
+    /**
+     * 반납 확정 요청하는 메세지를 보냅니다.
+     * 반납 요청 의사를 채팅 메시지 형태로 공유하는 기능입니다.
+     * @param userId 보내는 주체 ID
+     * @param traceId 멱등성 추적 ID
+     * @param borrowId 빌리는 책에 대한 ID
+     * @param chatId 대화 하고있는 채팅방 ID
+     */
     @Transactional(readOnly = true)
     public void sendReturnBookConfirmRequest(UUID userId, String traceId, UUID borrowId, UUID chatId) {
 
@@ -230,6 +246,14 @@ public class BorrowService {
                 traceId, userId, borrowId, chatId);
     }
 
+    /**
+     * 대여 연장 요청하는 메세지를 보냅니다.
+     * 사용자가 연장을 요청했다는 사실만 메시지로 전달합니다.
+     * @param userId 보내는 주체 ID
+     * @param traceId 멱등성 추적 ID
+     * @param borrowId 빌리는 책에 대한 ID
+     * @param chatId 대화 하고있는 채팅방 ID
+     */
     @Transactional(readOnly = true)
     public void sendBorrowExtendRequest(UUID userId, String traceId, UUID borrowId, UUID chatId) {
 
