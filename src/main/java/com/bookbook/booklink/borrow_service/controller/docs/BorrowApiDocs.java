@@ -45,7 +45,8 @@ public interface BorrowApiDocs {
     public ResponseEntity<BaseResponse<Void>> requestBorrowConfirmation(
             @PathVariable UUID borrowId,
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @RequestHeader("Trace-Id") String traceId
+            @RequestHeader("Trace-Id") String traceId,
+            @RequestParam UUID chatId
     );
 
     @Operation(

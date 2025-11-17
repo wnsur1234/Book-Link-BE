@@ -162,6 +162,7 @@ public class BorrowService {
 
     }
 
+
     private void sendBorrowRequestMessage(UUID chatId, Member sender, Borrow borrow) {
 
         // 저장용 DTO 생성 (기존 WebSocket에서 쓰던 형태 재사용)
@@ -176,6 +177,31 @@ public class BorrowService {
 
         // WebSocket 구독자에게 전송
         messagingTemplate.convertAndSend("/sub/chat/" + chatId, saved);
+    }
+
+    @Transactional(readOnly = true)
+    public void sendBorrowConfirmRequest(UUID userId, String traceId, UUID borrowId, UUID chatId) {
+
+        log.info("[BorrowService] [traceId = {}, userId = {}] borrow confirm request initiate borrowId={}, chatId={}",
+                traceId, userId, borrowId, chatId);
+
+        Borrow borrow = borrowRepository.findById(borrowId)
+                .orElseThrow(() -> new CustomException(ErrorCode.BORROW_NOT_FOUND));
+
+        Member sender = borrow.getMember();
+        String title = borrow.getLibraryBookCopy().getLibraryBook().getBook().getTitle();
+
+        MessageReqDto dto = MessageReqDto.builder()
+                .chatId(chatId)
+                .text("[대여 확정 요청] " + title)
+                .type(MessageType.SYSTEM)
+                .build();
+
+        MessageResDto saved = singleChatsService.saveChatMessages(sender, dto);
+        messagingTemplate.convertAndSend("/sub/chat/" + chatId, saved);
+
+        log.info("[BorrowService] [traceId = {}, userId = {}] borrow confirm request success borrowId={}, chatId={}",
+                traceId, userId, borrowId, chatId);
     }
 }
     
