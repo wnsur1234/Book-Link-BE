@@ -167,7 +167,7 @@ public class BorrowService {
         // 저장용 DTO 생성 (기존 WebSocket에서 쓰던 형태 재사용)
         MessageReqDto messageReqDto = MessageReqDto.builder()
                 .chatId(chatId)
-                .content("[대여 요청] " + borrow.getLibraryBookCopy().getLibraryBook().getBook().getTitle())
+                .text("[대여 요청] " + borrow.getLibraryBookCopy().getLibraryBook().getBook().getTitle())
                 .type(MessageType.SYSTEM)  // 시스템 메시지용 타입이 있다면
                 .build();
 
