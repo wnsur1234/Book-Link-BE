@@ -89,6 +89,7 @@ public class PointHistory {
         return PointHistory.builder()
                 .amount(pointUseDto.getAmount())
                 .type(pointUseDto.getType())
+                .balanceAfter(member.getPoint().getBalance()-pointUseDto.getAmount())
                 .description(pointUseDto.getType().getDefaultDescription())
                 .member(member)
                 .build();
