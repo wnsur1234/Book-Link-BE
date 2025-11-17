@@ -143,14 +143,15 @@ public class BorrowController implements BorrowApiDocs {
     public ResponseEntity<BaseResponse<Void>> requestBorrowExtend(
             @PathVariable UUID borrowId,
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @RequestHeader("Trace-Id") String traceId
+            @RequestHeader("Trace-Id") String traceId,
+            @RequestParam UUID chatId
     ) {
         UUID userId = customUserDetails.getMember().getId();
 
         log.info("[BorrowController] [traceId = {}, userId = {}] borrow extend request received, borrowId={}",
                 traceId, userId, borrowId);
 
-        // todo 대여 연장을 요청하는 채팅 전송
+        borrowService.sendBorrowExtendRequest(userId, traceId, borrowId, chatId);
 
         log.info("[BorrowController] [traceId = {}, userId = {}] borrow extend request success, borrowId={}",
                 traceId, userId, borrowId);
