@@ -203,5 +203,31 @@ public class BorrowService {
         log.info("[BorrowService] [traceId = {}, userId = {}] borrow confirm request success borrowId={}, chatId={}",
                 traceId, userId, borrowId, chatId);
     }
+
+    @Transactional(readOnly = true)
+    public void sendReturnBookConfirmRequest(UUID userId, String traceId, UUID borrowId, UUID chatId) {
+
+        log.info("[BorrowService] [traceId = {}, userId = {}] return confirm request initiate borrowId={}, chatId={}",
+                traceId, userId, borrowId, chatId);
+
+
+        Borrow borrow = borrowRepository.findById(borrowId)
+                .orElseThrow(() -> new CustomException(ErrorCode.BORROW_NOT_FOUND));
+
+        Member sender = borrow.getMember();
+        String title = borrow.getLibraryBookCopy().getLibraryBook().getBook().getTitle();
+
+        MessageReqDto dto = MessageReqDto.builder()
+                .chatId(chatId)
+                .text("[반납 확정 요청] " + title)
+                .type(MessageType.SYSTEM)
+                .build();
+
+        MessageResDto saved = singleChatsService.saveChatMessages(sender, dto);
+        messagingTemplate.convertAndSend("/sub/chat/" + chatId, saved);
+
+        log.info("[BorrowService] [traceId = {}, userId = {}] return confirm request success borrowId={}, chatId={}",
+                traceId, userId, borrowId, chatId);
+    }
 }
     

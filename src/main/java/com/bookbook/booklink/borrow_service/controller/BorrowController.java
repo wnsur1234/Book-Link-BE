@@ -102,14 +102,15 @@ public class BorrowController implements BorrowApiDocs {
     public ResponseEntity<BaseResponse<Void>> requestReturnBookConfirmation(
             @PathVariable UUID borrowId,
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @RequestHeader("Trace-Id") String traceId
+            @RequestHeader("Trace-Id") String traceId,
+            @RequestParam UUID chatId
     ) {
         UUID userId = customUserDetails.getMember().getId();
 
         log.info("[BorrowController] [traceId = {}, userId = {}] return book accept request received, borrowId={}",
                 traceId, userId, borrowId);
 
-        // todo 책 반납 확정 요청
+        borrowService.sendReturnBookConfirmRequest(userId, traceId, borrowId, chatId);
 
         log.info("[BorrowController] [traceId = {}, userId = {}] return book accept request success, borrowId={}",
                 traceId, userId, borrowId);
