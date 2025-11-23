@@ -71,13 +71,17 @@ public class ChatMessages {
     private List<MessageAttachments> attachments = new ArrayList<>();
 
     public static ChatMessages saveMessage(Member sender, MessageReqDto dto) {
+
+        MessageType messageType =
+                (dto.getType() != null) ? dto.getType() : MessageType.TEXT;
+
         // 1. 먼저 메시지 엔티티 생성
         ChatMessages message = ChatMessages.builder()
                 .chatId(dto.getChatId())
                 .sender(sender)
                 .text(dto.getText())
                 .status(MessageStatus.SENT)
-                .type(MessageType.TEXT)
+                .type(messageType)
                 .roomType(RoomType.SINGLE)
                 .sentAt(LocalDateTime.now())
                 .build();
