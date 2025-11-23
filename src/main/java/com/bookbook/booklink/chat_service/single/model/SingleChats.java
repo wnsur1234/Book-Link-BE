@@ -1,6 +1,8 @@
 package com.bookbook.booklink.chat_service.single.model;
 
 import com.bookbook.booklink.chat_service.chat_mutual.code.ChatStatus;
+import com.bookbook.booklink.common.exception.CustomException;
+import com.bookbook.booklink.common.exception.ErrorCode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -49,12 +51,23 @@ public class SingleChats {
     @Schema(description = "참여자 ID", example = "7fa85f64-5717-4562-b3fc-2c963f66afa6")
     private UUID user2Id;
 
+    // 유저별 목록 삭제(숨김) 여부
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean user1Deleted = false;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean user2Deleted = false;
+
     public static SingleChats createNormalized(UUID a, UUID b) {
         UUID u1 = a.compareTo(b) <= 0 ? a : b;
         UUID u2 = a.compareTo(b) <= 0 ? b : a;
         return SingleChats.builder()
                 .user1Id(u1)
                 .user2Id(u2)
+                .user1Deleted(false)
+                .user2Deleted(false)
                 .status(ChatStatus.ACTIVE)
                 .build();
     }
@@ -66,6 +79,28 @@ public class SingleChats {
     public void updateLastMessage(String message, LocalDateTime sentAt) {
         this.lastMessage = message;
         this.lastSentAt = sentAt;
+    }
+
+    /** 특정 유저 기준으로 목록 삭제(숨김) 처리 */
+    public void deleteForUser(UUID memberId) {
+        if (memberId.equals(user1Id)) {
+            this.user1Deleted = true;
+        } else if (memberId.equals(user2Id)) {
+            this.user2Deleted = true;
+        } else {
+            throw new CustomException(ErrorCode.NOT_PARTICIPANT_MEMBER);
+        }
+    }
+
+    /** 특정 유저 기준으로 목록 복구 처리 (다시 채팅 걸었을 때) */
+    public void restoreForUser(UUID memberId) {
+        if (memberId.equals(user1Id)) {
+            this.user1Deleted = false;
+        } else if (memberId.equals(user2Id)) {
+            this.user2Deleted = false;
+        } else {
+            throw new CustomException(ErrorCode.NOT_PARTICIPANT_MEMBER);
+        }
     }
 }
     
