@@ -204,6 +204,9 @@ public enum ErrorCode {
     @Schema(description = "이미 비활성화된 회원입니다.")
     MEMBER_ALREADY_INACTIVE(HttpStatus.BAD_REQUEST, "MEMBER_ALREADY_INACTIVE_400", "이미 비활성화된 회원입니다."),
 
+    @Schema(description = "채팅방 참여자가 아닙니다.")
+    NOT_PARTICIPANT_MEMBER(HttpStatus.BAD_REQUEST, "NOT_PARTICIPANT_MEMBER_400", "채팅방 참여자가 아닙니다."),
+
     @Schema(description = "비활성화된 계정입니다.")
     MEMBER_DEACTIVATED(HttpStatus.UNAUTHORIZED, "MEMBER_DEACTIVATED_401", "비활성화된 계정입니다.");
 
