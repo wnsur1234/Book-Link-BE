@@ -2,6 +2,7 @@ package com.bookbook.booklink.chat_service.single.controller.docs;
 
 import com.bookbook.booklink.chat_service.chat_mutual.model.dto.request.MessageReqDto;
 import com.bookbook.booklink.chat_service.chat_mutual.model.dto.response.MessageResDto;
+import com.bookbook.booklink.chat_service.single.model.dto.request.SingleRoomDeleteReqDto;
 import com.bookbook.booklink.chat_service.single.model.dto.request.SingleRoomReqDto;
 import com.bookbook.booklink.chat_service.single.model.dto.response.SingleRoomResDto;
 import com.bookbook.booklink.common.exception.ApiErrorResponses;
@@ -65,4 +66,31 @@ public interface SingleChatApiDocs {
     @GetMapping("/room/{chatId}/messages")
     public ResponseEntity<BaseResponse<List<MessageResDto>>> getMessages(
             @PathVariable UUID chatId);
+
+    @Operation(
+            summary = "채팅방 나가기",
+            description = "채팅방에서 나가며, 상대방에게 시스템 메시지가 전송됩니다. " +
+                    "나중에 다시 채팅을 시작하면 이전 대화 내용은 그대로 유지됩니다."
+    )
+    @ApiErrorResponses({ErrorCode.VALIDATION_FAILED, ErrorCode.DATABASE_ERROR,
+            ErrorCode.METHOD_UNAUTHORIZED, ErrorCode.DATA_INTEGRITY_VIOLATION,
+            ErrorCode.CHAT_ROOM_NOT_FOUND, ErrorCode.CHAT_ROOM_FORBIDDEN})
+    @DeleteMapping("/room/{chatId}/leave")
+    ResponseEntity<BaseResponse<Void>> leaveRoom(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @PathVariable UUID chatId
+    );
+
+    @Operation(
+            summary = "채팅방 목록 삭제",
+            description = "내 채팅방 목록에서 특정 채팅방(단건/다건) 또는 전체를 삭제합니다. " +
+                    "실제 대화 내용은 삭제되지 않으며, 다시 채팅을 시작하면 복구됩니다."
+    )
+    @ApiErrorResponses({ErrorCode.VALIDATION_FAILED, ErrorCode.DATABASE_ERROR,
+            ErrorCode.METHOD_UNAUTHORIZED, ErrorCode.DATA_INTEGRITY_VIOLATION})
+    @DeleteMapping("/rooms")
+    ResponseEntity<BaseResponse<Void>> deleteRooms(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestBody SingleRoomDeleteReqDto reqDto
+    );
 }
