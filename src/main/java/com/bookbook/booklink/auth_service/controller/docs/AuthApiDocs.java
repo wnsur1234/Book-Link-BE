@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,4 +37,8 @@ public interface AuthApiDocs {
     @PostMapping("/login")
     public ResponseEntity<BaseResponse<TokenResDto>> login(@Valid @RequestBody LoginReqDto loginReqDto);
 
+    @PostMapping("/token/reissue")
+    public ResponseEntity<BaseResponse<TokenResDto>> reissue(
+            @CookieValue(value = "refreshToken", required = false) String refreshToken
+    );
 }

@@ -5,6 +5,7 @@ import com.bookbook.booklink.auth_service.model.dto.request.LoginReqDto;
 import com.bookbook.booklink.auth_service.repository.MemberRepository;
 import com.bookbook.booklink.common.exception.CustomException;
 import com.bookbook.booklink.common.exception.ErrorCode;
+import com.bookbook.booklink.common.jwt.model.RefreshToken;
 import com.bookbook.booklink.common.jwt.service.RefreshTokenService;
 import com.bookbook.booklink.common.jwt.util.JWTUtil;
 import lombok.AllArgsConstructor;
@@ -71,6 +72,41 @@ public class AuthService {
 
         // 5. 컨트롤러에서 쓸 수 있도록 두 토큰을 같이 반환
         return new LoginResult(accessToken, refreshToken);
+    }
+    
+    /**
+     * 🟩 RefreshToken 기반 AccessToken 재발급 (HttpOnly 쿠키 기반)
+     */
+    public String reissue(String refreshToken) {
+
+        if (refreshToken == null) {
+            throw new CustomException(ErrorCode.REFRESH_TOKEN_NOT_FOUND);
+        }
+
+        // RT 만료 여부 체크
+        if (jwtUtil.isExpired(refreshToken)) {
+            throw new CustomException(ErrorCode.EXPIRED_REFRESH_TOKEN);
+        }
+
+        String email = jwtUtil.getUsername(refreshToken);
+
+        // DB에 저장된 RefreshToken 조회
+        RefreshToken saved = refreshTokenService.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_REFRESH_TOKEN));
+
+        // 저장된 RT와 요청받은 RT 비교
+        if (!saved.getToken().equals(refreshToken)) {
+            throw new CustomException(ErrorCode.INVALID_REFRESH_TOKEN);
+        }
+
+        // Member 정보 조회
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        String role = member.getRole().name();
+
+        // 새 AccessToken 생성
+        return jwtUtil.createAccessToken(email, role);
     }
 
     // RefreshToken을 body에 담지 않게 하기 위한 recode 구조

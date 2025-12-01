@@ -5,6 +5,7 @@ import com.bookbook.booklink.auth_service.model.dto.request.LoginReqDto;
 import com.bookbook.booklink.auth_service.model.dto.response.TokenResDto;
 import com.bookbook.booklink.auth_service.service.AuthService;
 import com.bookbook.booklink.common.dto.BaseResponse;
+import com.bookbook.booklink.common.exception.CustomException;
 import com.bookbook.booklink.common.jwt.CustomUserDetail.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -56,5 +58,15 @@ public class AuthController implements AuthApiDocs {
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
                 .body(BaseResponse.success(new TokenResDto(loginResult.accessToken())));
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse<TokenResDto>> reissue(
+            @CookieValue(value = "refreshToken", required = false) String refreshToken
+    ) {
+        String newAccessToken = authService.reissue(refreshToken);
+
+        return ResponseEntity.ok()
+                .body(BaseResponse.success(new TokenResDto(newAccessToken)));
     }
 }
