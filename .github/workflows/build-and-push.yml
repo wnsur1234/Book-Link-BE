@@ -56,6 +56,11 @@ jobs:
       # EC2 접속하여 자동 재배포
       - name: Deploy on EC2
         uses: appleboy/ssh-action@v0.1.6
+        # aws 권한 받을 시 삭제
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
