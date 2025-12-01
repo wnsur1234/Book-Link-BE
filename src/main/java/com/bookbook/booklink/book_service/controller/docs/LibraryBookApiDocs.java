@@ -65,8 +65,8 @@ public interface LibraryBookApiDocs {
     );
 
     @Operation(
-            summary = "내 주변 3km 이내 도서 목록 조회 및 검색",
-            description = "위치 기반으로 도서 리스트 반환합니다."
+            summary = "도서 목록 조회 및 검색",
+            description = "위도 및 경도 / 책 제목 / 도서관 id 기반으로 도서 리스트 반환합니다."
     )
     @ApiErrorResponses({ErrorCode.DATABASE_ERROR})
     @GetMapping
