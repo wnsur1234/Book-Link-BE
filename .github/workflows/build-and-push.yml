@@ -56,16 +56,16 @@ jobs:
       # EC2 접속하여 자동 재배포
       - name: Deploy on EC2
         uses: appleboy/ssh-action@v0.1.6
-        # aws 권한 받을 시 삭제
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          # aws 권한 받을 시 삭제
           script: |
+            export AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY }}"
+            export AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_KEY }}"
+            export AWS_REGION="${{ secrets.AWS_REGION }}"
+      
             cd /home/ec2-user/app
             aws ecr get-login-password --region ${{ secrets.AWS_REGION }} \
               | docker login --username AWS --password-stdin ${{ secrets.ECR_URI }}
