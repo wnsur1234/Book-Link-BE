@@ -3,6 +3,7 @@ package com.bookbook.booklink.board_service.controller.docs;
 import com.bookbook.booklink.auth_service.model.Member;
 import com.bookbook.booklink.board_service.model.BoardCategory;
 import com.bookbook.booklink.board_service.model.dto.request.BoardCreateDto;
+import com.bookbook.booklink.board_service.model.dto.request.BoardSort;
 import com.bookbook.booklink.board_service.model.dto.request.BoardUpdateDto;
 import com.bookbook.booklink.board_service.model.dto.response.BoardDetailDto;
 import com.bookbook.booklink.board_service.model.dto.response.BoardListDto;
@@ -77,7 +78,8 @@ public interface BoardApiDocs {
     @GetMapping
     ResponseEntity<BaseResponse<List<BoardListDto>>> getBoards(
             @Parameter(description = "검색할 제목 키워드", required = false) @RequestParam(required = false) String title,
-            @Parameter(description = "검색할 카테고리", required = false) @RequestParam(required = false) BoardCategory category
+            @Parameter(description = "검색할 카테고리", required = false) @RequestParam(required = false) BoardCategory category,
+            @Parameter(description = "정렬 조건") @RequestParam(defaultValue = "LATEST") BoardSort sort
     );
 
     @Operation(

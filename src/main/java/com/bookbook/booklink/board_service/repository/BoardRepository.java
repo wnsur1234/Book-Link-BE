@@ -2,6 +2,7 @@ package com.bookbook.booklink.board_service.repository;
 
 import com.bookbook.booklink.board_service.model.Board;
 import com.bookbook.booklink.board_service.model.BoardCategory;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,6 +20,7 @@ public interface BoardRepository extends JpaRepository<Board, UUID> {
             "AND (:category IS NULL OR b.category = :category) " +
             "ORDER BY b.createdAt DESC")
     List<Board> findByTitleAndCategory(@Param("title") String title,
-                                       @Param("category") BoardCategory category);
+                                       @Param("category") BoardCategory category,
+                                       Sort sort);
 }
     
