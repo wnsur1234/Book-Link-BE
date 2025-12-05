@@ -5,6 +5,7 @@ import com.bookbook.booklink.auth_service.model.Member;
 import com.bookbook.booklink.board_service.controller.docs.BoardApiDocs;
 import com.bookbook.booklink.board_service.model.BoardCategory;
 import com.bookbook.booklink.board_service.model.dto.request.BoardCreateDto;
+import com.bookbook.booklink.board_service.model.dto.request.BoardSort;
 import com.bookbook.booklink.board_service.model.dto.request.BoardUpdateDto;
 import com.bookbook.booklink.board_service.model.dto.response.BoardDetailDto;
 import com.bookbook.booklink.board_service.model.dto.response.BoardListDto;
@@ -86,9 +87,10 @@ public class BoardController implements BoardApiDocs {
     @Override
     public ResponseEntity<BaseResponse<List<BoardListDto>>> getBoards(
             @RequestParam(required = false) String title,
-            @RequestParam(required = false) BoardCategory category
+            @RequestParam(required = false) BoardCategory category,
+            @RequestParam(defaultValue = "LATEST") BoardSort sort
     ) {
-        List<BoardListDto> dtoList = boardService.getBoards(title, category);
+        List<BoardListDto> dtoList = boardService.getBoards(title, category, sort);
 
         return ResponseEntity.ok()
                 .body(BaseResponse.success(dtoList));

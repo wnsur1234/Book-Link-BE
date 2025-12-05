@@ -5,6 +5,7 @@ import com.bookbook.booklink.board_service.model.Board;
 import com.bookbook.booklink.board_service.model.BoardCategory;
 import com.bookbook.booklink.board_service.model.BoardLikes;
 import com.bookbook.booklink.board_service.model.dto.request.BoardCreateDto;
+import com.bookbook.booklink.board_service.model.dto.request.BoardSort;
 import com.bookbook.booklink.board_service.model.dto.request.BoardUpdateDto;
 import com.bookbook.booklink.board_service.model.dto.response.BoardDetailDto;
 import com.bookbook.booklink.board_service.model.dto.response.BoardListDto;
@@ -16,6 +17,7 @@ import com.bookbook.booklink.common.exception.ErrorCode;
 import com.bookbook.booklink.common.service.IdempotencyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -117,11 +119,18 @@ public class BoardService {
      *
      * @param title    검색할 제목 키워드 (null 허용)
      * @param category 검색할 게시글 카테고리 (null 허용)
+     * @param sort 정렬 (default 최신순)
      * @return BoardListDto 목록
      */
     @Transactional(readOnly = true)
-    public List<BoardListDto> getBoards(String title, BoardCategory category) {
-        List<Board> boardList = boardRepository.findByTitleAndCategory(title, category);
+    public List<BoardListDto> getBoards(String title, BoardCategory category, BoardSort sort) {
+
+        Sort order = switch (sort) {
+            case LATEST -> Sort.by(Sort.Direction.DESC, "createdAt");
+            case POPULAR ->  Sort.by(Sort.Direction.DESC, "likeCount");
+        };
+
+        List<Board> boardList = boardRepository.findByTitleAndCategory(title, category, order);
 
         return boardList.stream().map(BoardListDto::fromEntity).toList();
     }
