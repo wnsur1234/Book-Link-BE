@@ -1,8 +1,10 @@
 package com.bookbook.booklink.chat_service.single.controller;
 
+import com.bookbook.booklink.auth_service.model.Member;
 import com.bookbook.booklink.chat_service.chat_mutual.model.dto.request.MessageReqDto;
 import com.bookbook.booklink.chat_service.chat_mutual.model.dto.response.MessageResDto;
 import com.bookbook.booklink.chat_service.single.controller.docs.SingleChatApiDocs;
+import com.bookbook.booklink.chat_service.single.model.dto.request.SingleRoomDeleteReqDto;
 import com.bookbook.booklink.chat_service.single.model.dto.request.SingleRoomReqDto;
 import com.bookbook.booklink.chat_service.single.model.dto.response.SingleRoomResDto;
 import com.bookbook.booklink.chat_service.single.service.SingleChatsService;
@@ -77,6 +79,28 @@ public class SingleChatsController implements SingleChatApiDocs {
 
         log.debug("[SingleChatsController] getMessages called success. chatId={}", chatId);
         return ResponseEntity.ok(BaseResponse.success(response));
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse<Void>> leaveRoom(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @PathVariable UUID chatId
+    ) {
+        Member me = user.getMember();
+        singleChatsService.leaveRoom(me, chatId);
+
+        return ResponseEntity.ok(BaseResponse.success(null));
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse<Void>> deleteRooms(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestBody SingleRoomDeleteReqDto reqDto
+    ) {
+        Member me = user.getMember();
+        singleChatsService.deleteRooms(me, reqDto);
+
+        return ResponseEntity.ok(BaseResponse.success(null));
     }
 }
     

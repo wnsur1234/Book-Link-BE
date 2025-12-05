@@ -1,7 +1,6 @@
 package com.bookbook.booklink.borrow_service.service;
 
 import com.bookbook.booklink.auth_service.model.Member;
-import com.bookbook.booklink.auth_service.service.MemberService;
 import com.bookbook.booklink.book_service.model.LibraryBook;
 import com.bookbook.booklink.book_service.model.LibraryBookCopy;
 import com.bookbook.booklink.book_service.service.LibraryBookService;
@@ -9,15 +8,18 @@ import com.bookbook.booklink.borrow_service.model.Borrow;
 import com.bookbook.booklink.borrow_service.model.BorrowStatus;
 import com.bookbook.booklink.borrow_service.model.dto.request.BorrowRequestDto;
 import com.bookbook.booklink.borrow_service.repository.BorrowRepository;
+import com.bookbook.booklink.chat_service.chat_mutual.code.MessageType;
+import com.bookbook.booklink.chat_service.chat_mutual.model.dto.request.MessageReqDto;
+import com.bookbook.booklink.chat_service.chat_mutual.model.dto.response.MessageResDto;
+import com.bookbook.booklink.chat_service.single.service.SingleChatsService;
 import com.bookbook.booklink.common.exception.CustomException;
 import com.bookbook.booklink.common.exception.ErrorCode;
 import com.bookbook.booklink.point_service.model.TransactionType;
 import com.bookbook.booklink.point_service.model.dto.request.PointUseDto;
 import com.bookbook.booklink.point_service.service.PointService;
-import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,12 +32,13 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class BorrowService {
     private final BorrowRepository borrowRepository;
-    private final MemberService memberService;
     private final LibraryBookService libraryBookService;
     private final PointService pointService;
+    private final SingleChatsService singleChatsService;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Transactional
-    public UUID borrowBook(Member member, String traceId, BorrowRequestDto borrowRequestDto) {
+    public UUID borrowBook(Member member, String traceId, BorrowRequestDto borrowRequestDto,UUID chatId) {
         log.info("[BorrowService] [traceId = {}, userId = {}] borrow book initiate borrowRequestDto={}", traceId, member.getId(), borrowRequestDto);
 
         UUID libraryBookId = borrowRequestDto.getLibraryBookId();
@@ -57,10 +60,10 @@ public class BorrowService {
             pointService.usePoint(dto, UUID.fromString(traceId), member);
         }
 
-        // todo : 1대1 채팅창 open
-
         Borrow savedBorrow = borrowRepository.save(borrow);
         UUID borrowId = savedBorrow.getId();
+
+        sendBorrowRequestMessage(chatId, member, savedBorrow);
 
         log.info("[BorrowService] [traceId = {}, userId = {}] borrow book success borrowId={}", traceId, member.getId(), borrowId);
         return borrowId;
@@ -157,6 +160,123 @@ public class BorrowService {
 
         log.info("[BorrowService] [traceId = {}, userId = {}] accept book extend success borrowId={}", traceId, userId, borrowId);
 
+    }
+
+
+    private void sendBorrowRequestMessage(UUID chatId, Member sender, Borrow borrow) {
+
+        // 저장용 DTO 생성 (기존 WebSocket에서 쓰던 형태 재사용)
+        MessageReqDto messageReqDto = MessageReqDto.builder()
+                .chatId(chatId)
+                .text("[대여 요청] " + borrow.getLibraryBookCopy().getLibraryBook().getBook().getTitle())
+                .type(MessageType.SYSTEM)  // 시스템 메시지용 타입이 있다면
+                .build();
+
+        // 기존 로직 재사용: DB 저장
+        MessageResDto saved = singleChatsService.saveChatMessages(sender, messageReqDto);
+
+        // WebSocket 구독자에게 전송
+        messagingTemplate.convertAndSend("/sub/chat/" + chatId, saved);
+    }
+
+    /**
+     * 책 대여 확정 요청 메세지를 보냅니다.
+     * 단순히 사용자 요청을 채팅으로 알려주는 용도입니다.
+     * @param userId 보내는 주체 ID
+     * @param traceId 멱등성 추적 ID
+     * @param borrowId 빌리는 책에 대한 ID
+     * @param chatId 대화 하고있는 채팅방 ID
+     */
+    @Transactional(readOnly = true)
+    public void sendBorrowConfirmRequest(UUID userId, String traceId, UUID borrowId, UUID chatId) {
+
+        log.info("[BorrowService] [traceId = {}, userId = {}] borrow confirm request initiate borrowId={}, chatId={}",
+                traceId, userId, borrowId, chatId);
+
+        Borrow borrow = borrowRepository.findById(borrowId)
+                .orElseThrow(() -> new CustomException(ErrorCode.BORROW_NOT_FOUND));
+
+        Member sender = borrow.getMember();
+        String title = borrow.getLibraryBookCopy().getLibraryBook().getBook().getTitle();
+
+        MessageReqDto dto = MessageReqDto.builder()
+                .chatId(chatId)
+                .text("[대여 확정 요청] " + title)
+                .type(MessageType.SYSTEM)
+                .build();
+
+        MessageResDto saved = singleChatsService.saveChatMessages(sender, dto);
+        messagingTemplate.convertAndSend("/sub/chat/" + chatId, saved);
+
+        log.info("[BorrowService] [traceId = {}, userId = {}] borrow confirm request success borrowId={}, chatId={}",
+                traceId, userId, borrowId, chatId);
+    }
+
+    /**
+     * 반납 확정 요청하는 메세지를 보냅니다.
+     * 반납 요청 의사를 채팅 메시지 형태로 공유하는 기능입니다.
+     * @param userId 보내는 주체 ID
+     * @param traceId 멱등성 추적 ID
+     * @param borrowId 빌리는 책에 대한 ID
+     * @param chatId 대화 하고있는 채팅방 ID
+     */
+    @Transactional(readOnly = true)
+    public void sendReturnBookConfirmRequest(UUID userId, String traceId, UUID borrowId, UUID chatId) {
+
+        log.info("[BorrowService] [traceId = {}, userId = {}] return confirm request initiate borrowId={}, chatId={}",
+                traceId, userId, borrowId, chatId);
+
+
+        Borrow borrow = borrowRepository.findById(borrowId)
+                .orElseThrow(() -> new CustomException(ErrorCode.BORROW_NOT_FOUND));
+
+        Member sender = borrow.getMember();
+        String title = borrow.getLibraryBookCopy().getLibraryBook().getBook().getTitle();
+
+        MessageReqDto dto = MessageReqDto.builder()
+                .chatId(chatId)
+                .text("[반납 확정 요청] " + title)
+                .type(MessageType.SYSTEM)
+                .build();
+
+        MessageResDto saved = singleChatsService.saveChatMessages(sender, dto);
+        messagingTemplate.convertAndSend("/sub/chat/" + chatId, saved);
+
+        log.info("[BorrowService] [traceId = {}, userId = {}] return confirm request success borrowId={}, chatId={}",
+                traceId, userId, borrowId, chatId);
+    }
+
+    /**
+     * 대여 연장 요청하는 메세지를 보냅니다.
+     * 사용자가 연장을 요청했다는 사실만 메시지로 전달합니다.
+     * @param userId 보내는 주체 ID
+     * @param traceId 멱등성 추적 ID
+     * @param borrowId 빌리는 책에 대한 ID
+     * @param chatId 대화 하고있는 채팅방 ID
+     */
+    @Transactional(readOnly = true)
+    public void sendBorrowExtendRequest(UUID userId, String traceId, UUID borrowId, UUID chatId) {
+
+        log.info("[BorrowService] [traceId = {}, userId = {}] borrow extend request initiate borrowId={}, chatId={}",
+                traceId, userId, borrowId, chatId);
+
+        Borrow borrow = borrowRepository.findById(borrowId)
+                .orElseThrow(() -> new CustomException(ErrorCode.BORROW_NOT_FOUND));
+
+        Member sender = borrow.getMember();
+        String title = borrow.getLibraryBookCopy().getLibraryBook().getBook().getTitle();
+
+        MessageReqDto dto = MessageReqDto.builder()
+                .chatId(chatId)
+                .text("[대여 연장 요청] " + title)
+                .type(MessageType.SYSTEM)
+                .build();
+
+        MessageResDto saved = singleChatsService.saveChatMessages(sender, dto);
+        messagingTemplate.convertAndSend("/sub/chat/" + chatId, saved);
+
+        log.info("[BorrowService] [traceId = {}, userId = {}] borrow extend request success borrowId={}, chatId={}",
+                traceId, userId, borrowId, chatId);
     }
 }
     

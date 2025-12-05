@@ -20,9 +20,20 @@ public interface SingleChatsRepository extends JpaRepository<SingleChats, UUID> 
     /**
      * 유저가 참여한 채팅방을 마지막 메시지 시각 기준으로 내림차순 정렬
      */
-    @Query("SELECT s FROM SingleChats s " +
-            "WHERE s.user1Id = :id OR s.user2Id = :id " +
-            "ORDER BY s.lastSentAt DESC NULLS LAST")
-    List<SingleChats> findAllByMemberSorted(@Param("id") UUID memberId);
+    @Query("""
+            SELECT s
+            FROM SingleChats s
+            WHERE (s.user1Id = :memberId AND s.user1Deleted = false) OR
+                (s.user2Id = :memberId AND s.user2Deleted = false)
+            ORDER BY s.lastSentAt DESC NULLS LAST
+            """)
+    List<SingleChats> findAllByMemberSorted(@Param("memberId") UUID memberId);
+
+    @Query("""
+            select s
+            from SingleChats s
+            where s.user1Id = :memberId or s.user2Id = :memberId
+            """)
+    List<SingleChats> findAllByMember(@Param("memberId") UUID memberId);
 }
     

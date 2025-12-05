@@ -1,7 +1,6 @@
 package com.bookbook.booklink.common.config.security;
 
 import com.bookbook.booklink.common.jwt.CustomUserDetail.UserDetailsServiceImpl;
-import com.bookbook.booklink.common.jwt.JwtAuthenticationFilter;
 import com.bookbook.booklink.common.jwt.JwtAuthorizationFilter;
 import com.bookbook.booklink.common.jwt.service.RefreshTokenService;
 import com.bookbook.booklink.common.jwt.util.JWTUtil;
@@ -46,7 +45,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(
-            HttpSecurity http, AuthenticationManager authenticationManager) throws Exception {
+            HttpSecurity http) throws Exception {
 
         return http
                 .csrf(AbstractHttpConfigurer::disable)
@@ -57,7 +56,7 @@ public class SecurityConfig {
                         // 메일 확인 허용
                         .requestMatchers("/api/auth/email/code", "/api/auth/email/verify").permitAll()
                         // 컨트롤러 기반 로그인/토큰 재발급/회원가입 허용
-                        .requestMatchers("/api/member/signup", "/api/auth/login", "/api/token/reissue").permitAll()
+                        .requestMatchers("/api/member/signup", "/api/auth/login", "/api/auth/token/reissue").permitAll()
                         // Swagger 문서 허용
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
                         // 정적/웹소켓 등 허용
@@ -67,9 +66,6 @@ public class SecurityConfig {
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(new JwtAuthorizationFilter(jwtUtil, userDetailsService),
-                        UsernamePasswordAuthenticationFilter.class)
-
                 // AccessToken 설정이 없을 시 오류 메세지
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint((request, response, authException) -> {

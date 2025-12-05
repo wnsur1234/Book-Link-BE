@@ -27,14 +27,15 @@ public class BorrowController implements BorrowApiDocs {
     public ResponseEntity<BaseResponse<UUID>> borrowBook(
             @Valid @RequestBody BorrowRequestDto borrowRequestDto,
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @RequestHeader("Trace-Id") String traceId
+            @RequestHeader("Trace-Id") String traceId,
+            @RequestParam UUID chatId
     ) {
         UUID userId = customUserDetails.getMember().getId();
 
         log.info("[BorrowController] [traceId = {}, userId = {}] borrow book request received, borrowRequestDto={}",
                 traceId, userId, borrowRequestDto);
 
-        UUID borrowId = borrowService.borrowBook(customUserDetails.getMember(), traceId, borrowRequestDto);
+        UUID borrowId = borrowService.borrowBook(customUserDetails.getMember(), traceId, borrowRequestDto,chatId);
 
         log.info("[BorrowController] [traceId = {}, userId = {}] borrow book request success, borrowId={}",
                 traceId, userId, borrowId);
@@ -45,14 +46,15 @@ public class BorrowController implements BorrowApiDocs {
     public ResponseEntity<BaseResponse<Void>> requestBorrowConfirmation(
             @PathVariable UUID borrowId,
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @RequestHeader("Trace-Id") String traceId
+            @RequestHeader("Trace-Id") String traceId,
+            @RequestParam UUID chatId
     ) {
         UUID userId = customUserDetails.getMember().getId();
 
         log.info("[BorrowController] [traceId = {}, userId = {}] borrow confirm request received, borrowId={}",
                 traceId, userId, borrowId);
 
-        // todo 대여 확정을 요청하는 채팅 전송
+        borrowService.sendBorrowConfirmRequest(userId, traceId, borrowId, chatId);
 
         log.info("[BorrowController] [traceId = {}, userId = {}] borrow confirm request success, borrowId={}",
                 traceId, userId, borrowId);
@@ -100,14 +102,15 @@ public class BorrowController implements BorrowApiDocs {
     public ResponseEntity<BaseResponse<Void>> requestReturnBookConfirmation(
             @PathVariable UUID borrowId,
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @RequestHeader("Trace-Id") String traceId
+            @RequestHeader("Trace-Id") String traceId,
+            @RequestParam UUID chatId
     ) {
         UUID userId = customUserDetails.getMember().getId();
 
         log.info("[BorrowController] [traceId = {}, userId = {}] return book accept request received, borrowId={}",
                 traceId, userId, borrowId);
 
-        // todo 책 반납 확정 요청
+        borrowService.sendReturnBookConfirmRequest(userId, traceId, borrowId, chatId);
 
         log.info("[BorrowController] [traceId = {}, userId = {}] return book accept request success, borrowId={}",
                 traceId, userId, borrowId);
@@ -140,14 +143,15 @@ public class BorrowController implements BorrowApiDocs {
     public ResponseEntity<BaseResponse<Void>> requestBorrowExtend(
             @PathVariable UUID borrowId,
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @RequestHeader("Trace-Id") String traceId
+            @RequestHeader("Trace-Id") String traceId,
+            @RequestParam UUID chatId
     ) {
         UUID userId = customUserDetails.getMember().getId();
 
         log.info("[BorrowController] [traceId = {}, userId = {}] borrow extend request received, borrowId={}",
                 traceId, userId, borrowId);
 
-        // todo 대여 연장을 요청하는 채팅 전송
+        borrowService.sendBorrowExtendRequest(userId, traceId, borrowId, chatId);
 
         log.info("[BorrowController] [traceId = {}, userId = {}] borrow extend request success, borrowId={}",
                 traceId, userId, borrowId);
