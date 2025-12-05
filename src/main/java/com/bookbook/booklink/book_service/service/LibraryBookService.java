@@ -97,11 +97,12 @@ public class LibraryBookService {
         int offset = page * size;
         Double lat = request.getLatitude();
         Double lng = request.getLongitude();
+        UUID libraryId = request.getLibraryId();
 
         List<LibraryBookListProjection> projections =
-                libraryBookRepository.findLibraryBooksBySearch(lat, lng, request.getBookName(), request.getSortType().toString(), size, offset);
+                libraryBookRepository.findLibraryBooksBySearch(lat, lng, libraryId, request.getBookName(), request.getSortType().toString(), size, offset);
 
-        long total = libraryBookRepository.countLibraryBooksBySearch(lat, lng, request.getBookName());
+        long total = libraryBookRepository.countLibraryBooksBySearch(libraryId, request.getBookName());
 
 
         List<LibraryBookListDto> dtoList = projections.stream()

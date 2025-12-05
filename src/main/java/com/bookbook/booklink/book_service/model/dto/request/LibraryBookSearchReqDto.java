@@ -7,18 +7,21 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 @Schema(description = "도서 검색/조회 요청 DTO")
 public class LibraryBookSearchReqDto {
 
-    @Schema(description = "위도", example = "37.48486731057572", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "위도 값은 필수입니다.")
+    @Schema(description = "위도", example = "37.48486731057572", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     Double latitude;
 
-    @Schema(description = "경도", example = "126.92841740891708", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "경도 값은 필수입니다.")
+    @Schema(description = "경도", example = "126.92841740891708", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     Double longitude;
+
+    @Schema(description = "도서관 ID", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    UUID libraryId;
 
     @Schema(description = "페이지 번호", example = "0", defaultValue = "0", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     @Min(value = 0, message = "페이지 번호는 0 이상이어야 합니다.")

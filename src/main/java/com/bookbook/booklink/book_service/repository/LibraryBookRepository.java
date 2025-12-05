@@ -27,11 +27,15 @@ public interface LibraryBookRepository extends JpaRepository<LibraryBook, UUID> 
                     WHEN lb.copies = lb.borrowed_count THEN MIN(CASE WHEN lbc.due_at >= NOW() THEN lbc.due_at END)
                     ELSE NULL
                 END AS expectedReturnDate,
-                (6371 * acos(
-                    cos(radians(:lat)) * cos(radians(l.latitude)) *
-                    cos(radians(l.longitude) - radians(:lng)) +
-                    sin(radians(:lat)) * sin(radians(l.latitude))
-                )) AS distance,
+                CASE
+                    WHEN :lat IS NOT NULL AND :lng IS NOT NULL THEN
+                        (6371 * acos(
+                            cos(radians(:lat)) * cos(radians(l.latitude)) *
+                            cos(radians(l.longitude) - radians(:lng)) +
+                            sin(radians(:lat)) * sin(radians(l.latitude))
+                        ))
+                    ELSE NULL
+                END AS distance,
                 NULL AS imageUrl
             FROM library_book lb
             JOIN book b ON lb.book_id = b.id
@@ -39,6 +43,7 @@ public interface LibraryBookRepository extends JpaRepository<LibraryBook, UUID> 
             JOIN library_book_copy lbc ON lb.id = lbc.library_book_id
             WHERE lb.deleted_at IS NULL
               AND (:bookName IS NULL OR b.title LIKE %:bookName%)
+              AND (:libraryId IS NULL OR lb.library_id = :libraryId)
             GROUP BY lb.id, l.name, b.title, b.author, lb.copies, lb.borrowed_count, lb.deposit, l.latitude, l.longitude
             ORDER BY
                 CASE WHEN :sortType = 'LATEST' THEN lb.created_at END DESC,
@@ -50,6 +55,7 @@ public interface LibraryBookRepository extends JpaRepository<LibraryBook, UUID> 
     List<LibraryBookListProjection> findLibraryBooksBySearch(
             @Param("lat") Double lat,
             @Param("lng") Double lng,
+            @Param("libraryId")  UUID libraryId,
             @Param("bookName") String bookName,
             @Param("sortType") String sortType,
             @Param("limit") int limit,
@@ -64,11 +70,11 @@ public interface LibraryBookRepository extends JpaRepository<LibraryBook, UUID> 
             JOIN library_book_copy lbc ON lb.id = lbc.library_book_id
             WHERE lb.deleted_at IS NULL
               AND (:bookName IS NULL OR b.title LIKE %:bookName%)
+              AND (:libraryId IS NULL OR lb.library_id = :libraryId)
             """,
             nativeQuery = true)
     long countLibraryBooksBySearch(
-            @Param("lat") Double lat,
-            @Param("lng") Double lng,
+            @Param("libraryId") UUID libraryId,
             @Param("bookName") String bookName
     );
 
