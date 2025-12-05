@@ -27,6 +27,9 @@ public class BoardListDto {
     @Schema(description = "제목", example = "새로운 책 추천 요청합니다.", accessMode = Schema.AccessMode.READ_ONLY)
     private String title;
 
+    @Schema(description = "내용 미리보기", example = "제가 관심있게 본 책이 있는데, 해당 책의 특징은 ...", accessMode = Schema.AccessMode.READ_ONLY)
+    private String previewContent;
+
     @Schema(description = "작성 시간", accessMode = Schema.AccessMode.READ_ONLY)
     private LocalDateTime createdAt;
 
@@ -58,6 +61,7 @@ public class BoardListDto {
                 .commentCount(board.getCommentCount())
                 .category(board.getCategory())
                 .viewCount(board.getViewCount())
+                .previewContent(board.getContent().substring(0, Math.min(board.getContent().length() - 1, 60)))
                 .build();
     }
 
