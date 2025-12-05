@@ -1,6 +1,7 @@
 package com.bookbook.booklink.community.group_service.service;
 
 import com.bookbook.booklink.auth_service.model.Member;
+import com.bookbook.booklink.chat_service.group.service.GroupChatsService;
 import com.bookbook.booklink.common.event.LockEvent;
 import com.bookbook.booklink.common.exception.CustomException;
 import com.bookbook.booklink.common.exception.ErrorCode;
@@ -31,7 +32,7 @@ public class GroupService {
     private final GroupRepository groupRepository;
     private final GroupMemberRepository groupMemberRepository;
     private final PasswordEncoder passwordEncoder;
-
+    private final GroupChatsService groupChatsService;
     /**
      * 새로운 모임을 생성하고 생성자를 해당 모임의 호스트 및 멤버로 등록합니다.
      *
@@ -64,6 +65,7 @@ public class GroupService {
                 traceId, member.getId(), savedGroup.getId());
 
         //todo: 단톡도 생성
+        groupChatsService.createGroupChatRoom(savedGroup);
     }
 
 
