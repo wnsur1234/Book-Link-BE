@@ -22,11 +22,14 @@ public class GroupChatsService {
 
 
     public MessageResDto saveGroupChatMessage(Member member, MessageReqDto dto) {
+        return null;
     }
 
     public List<MessageResDto> getGroupMessages(UUID chatId, Member me) {
+        return null;
     }
 
     public List<GroupChatRoomResDto> getMyGroupChatRooms(Member me) {
+        return null;
     }
 }

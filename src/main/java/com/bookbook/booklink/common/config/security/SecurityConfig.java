@@ -29,7 +29,6 @@ public class SecurityConfig {
 
     private final JWTUtil jwtUtil;
     private final UserDetailsServiceImpl userDetailsService;
-    private final RefreshTokenService refreshTokenService;
 
     @Bean
     public AuthenticationManager authenticationManager(
@@ -81,6 +80,8 @@ public class SecurityConfig {
                             response.getWriter().write("{\"message\":\"권한 없음\"}");
                         })
                 )
+                .addFilterBefore(new JwtAuthorizationFilter(jwtUtil, userDetailsService),
+                        UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
