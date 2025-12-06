@@ -5,6 +5,7 @@ import com.bookbook.booklink.common.exception.ErrorCode;
 import com.bookbook.booklink.common.exception.ErrorInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
 import java.time.Instant;
 
@@ -57,6 +58,17 @@ public class BaseResponse<T> {
                 .status(errorCode.getHttpStatus().value())
                 .code(errorCode.getCode())
                 .message(errorCode.getMessage())
+                .path(path)
+                .build();
+        return new BaseResponse<>(false, null, errorInfo);
+    }
+
+    public static <T> BaseResponse<T> error(String message, String path) {
+        ErrorInfo errorInfo = ErrorInfo.builder()
+                .timestamp(Instant.now())
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .code(null)
+                .message(message)
                 .path(path)
                 .build();
         return new BaseResponse<>(false, null, errorInfo);
