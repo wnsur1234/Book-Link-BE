@@ -1,5 +1,6 @@
 package com.bookbook.booklink.book_service.service;
 
+import com.bookbook.booklink.auth_service.service.MemberService;
 import com.bookbook.booklink.book_service.model.Book;
 import com.bookbook.booklink.book_service.model.LibraryBook;
 import com.bookbook.booklink.book_service.model.LibraryBookCopy;
@@ -32,6 +33,8 @@ public class LibraryBookService {
     private final LibraryBookRepository libraryBookRepository;
     private final IdempotencyService idempotencyService;
     private final BookService bookService;
+    private final LibraryService libraryService;
+    private final MemberService memberService;
 
     @Transactional
     public UUID registerLibraryBook(LibraryBookRegisterDto bookRegisterDto, String traceId, UUID userId, Library library) {
@@ -99,6 +102,9 @@ public class LibraryBookService {
         Double lng = request.getLongitude();
         UUID libraryId = request.getLibraryId();
 
+        UUID myLibraryId = libraryService.getMyLibraryId(userId);
+        boolean isMyLibrary = libraryId.equals(myLibraryId);
+
         List<LibraryBookListProjection> projections =
                 libraryBookRepository.findLibraryBooksBySearch(lat, lng, libraryId, request.getBookName(), request.getSortType().toString(), size, offset);
 
@@ -118,6 +124,7 @@ public class LibraryBookService {
                         .rentedOut(p.getRentedOut() != null && p.getRentedOut() == 1)
                         .expectedReturnDate(p.getExpectedReturnDate())
                         .imageUrl(p.getImageUrl())
+                        .isMine(isMyLibrary)
                         .build())
                 .toList();
 
@@ -168,11 +175,15 @@ public class LibraryBookService {
     }
 
     @Transactional(readOnly = true)
-    public LibraryBookDetailResDto getLibraryBookDetail(UUID libraryBookId) {
+    public LibraryBookDetailResDto getLibraryBookDetail(UUID libraryBookId, UUID userId) {
         LibraryBook libraryBook = libraryBookRepository.findById(libraryBookId)
                 .orElseThrow(() -> new CustomException(ErrorCode.BOOK_NOT_FOUND));
         Book book = libraryBook.getBook();
         Library library = libraryBook.getLibrary();
+
+        UUID myLibraryId = libraryService.getMyLibraryId(userId);
+
+        boolean isMyLibrary = library.getId().equals(myLibraryId);
 
         LibraryDto libraryDto = LibraryDto.builder()
                 .id(library.getId())
@@ -209,6 +220,7 @@ public class LibraryBookService {
                 .bookDetailDto(bookDetailDto)
                 .libraryBookDetailDto(libraryBookDetailDto)
                 .libraryDto(libraryDto)
+                .isMine(isMyLibrary)
                 .build();
     }
 }
