@@ -70,7 +70,13 @@ public class ChatMessages {
     @Builder.Default
     private List<MessageAttachments> attachments = new ArrayList<>();
 
-    public static ChatMessages saveMessage(Member sender, MessageReqDto dto) {
+    /**
+     * 1대1 채팅에서 발생하는 메세지를 저장하기 위한 메서드
+     * @param sender 보낸사람 UUID
+     * @param dto 채팅을 보냈을 때 발생하는 정보
+     * return 저장된 Message 정보를 반환
+     */
+    public static ChatMessages saveSingleRoomMessage(Member sender, MessageReqDto dto) {
 
         MessageType messageType =
                 (dto.getType() != null) ? dto.getType() : MessageType.TEXT;
@@ -98,6 +104,42 @@ public class ChatMessages {
             // ChatMessages <-> MessageAttachments 양방향 관계 설정
             message.getAttachments().addAll(attachmentEntities);
         }
+        return message;
+    }
+
+    /**
+     * 그룹 채팅에서 발생하는 메세지를 저장하기 위한 메서드
+     * @param sender 보낸사람 UUID
+     * @param dto 채팅을 보냈을 때 발생하는 정보
+     * @return 저장된 Message 정보를 반환
+     */
+    public static ChatMessages saveGroupMessage(Member sender, MessageReqDto dto) {
+
+        MessageType messageType =
+                (dto.getType() != null) ? dto.getType() : MessageType.TEXT;
+
+        ChatMessages message = ChatMessages.builder()
+                .chatId(dto.getChatId())      // groupId가 chatId 역할
+                .sender(sender)
+                .text(dto.getText())
+                .status(MessageStatus.SENT)
+                .type(messageType)
+                .roomType(RoomType.GROUP)
+                .sentAt(LocalDateTime.now())
+                .build();
+
+        if (dto.getAttachments() != null) {
+            List<MessageAttachments> attachmentEntities = dto.getAttachments().stream()
+                    .map(a -> MessageAttachments.builder()
+                            .fileName(a.getFileName())
+                            .filePath(a.getFilePath())
+                            .fileSize(a.getFileSize())
+                            .message(message)
+                            .build())
+                    .toList();
+            message.getAttachments().addAll(attachmentEntities);
+        }
+
         return message;
     }
 }

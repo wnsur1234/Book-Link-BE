@@ -33,7 +33,7 @@ public class ChatMessagesService {
     }
     @Transactional
     public ChatMessages saveMessagesEntity(Member member, MessageReqDto dto) {
-        ChatMessages chatMessages = ChatMessages.saveMessage(member,dto);
+        ChatMessages chatMessages = ChatMessages.saveSingleRoomMessage(member,dto);
         return chatMessagesRepository.save(chatMessages);
     }
 
