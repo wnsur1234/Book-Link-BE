@@ -18,6 +18,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.Arrays;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
@@ -173,10 +174,11 @@ public class GlobalExceptionHandler {
         }
 
         ErrorCode code = ErrorCode.UNKNOWN_ERROR;
+        String message = ex.getMessage() + "\n" + Arrays.toString(ex.getStackTrace());
 
         return ResponseEntity
                 .status(code.getHttpStatus().value())
-                .body(BaseResponse.error(code, path));
+                .body(BaseResponse.error(message, path));
     }
 
 }
