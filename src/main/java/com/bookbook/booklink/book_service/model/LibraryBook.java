@@ -215,4 +215,11 @@ public class LibraryBook {
             this.ownerId = library.getMember().getId();
         }
     }
+
+    public void updateDescription(String description) {
+        if (description.equals(this.description)) {
+            return;
+        }
+        this.description = description;
+    }
 }

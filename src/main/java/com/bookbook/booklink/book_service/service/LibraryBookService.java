@@ -75,6 +75,7 @@ public class LibraryBookService {
 
         if (updateBookDto.getCopies() != null) libraryBook.updateCopies(updateBookDto.getCopies());
         if (updateBookDto.getDeposit() != null) libraryBook.updateDeposit(updateBookDto.getDeposit());
+        if (updateBookDto.getDescription() != null) libraryBook.updateDescription(updateBookDto.getDescription());
         if (updateBookDto.getPreviewImages() != null) {
             libraryBook.updatePreviewImages(updateBookDto.getPreviewImages());
         }
