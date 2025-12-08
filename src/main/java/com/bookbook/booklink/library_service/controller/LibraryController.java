@@ -1,21 +1,25 @@
 package com.bookbook.booklink.library_service.controller;
 
-import com.bookbook.booklink.common.exception.BaseResponse;
+import com.bookbook.booklink.auth_service.model.Member;
+import com.bookbook.booklink.book_service.model.LibraryBook;
+import com.bookbook.booklink.book_service.service.LibraryBookService;
+import com.bookbook.booklink.common.dto.BaseResponse;
+import com.bookbook.booklink.common.dto.PageResponse;
+import com.bookbook.booklink.library_service.controller.docs.LibraryApiDocs;
 import com.bookbook.booklink.library_service.model.dto.request.LibraryRegDto;
 import com.bookbook.booklink.library_service.model.dto.request.LibraryUpdateDto;
 import com.bookbook.booklink.library_service.model.dto.response.LibraryDetailDto;
 import com.bookbook.booklink.library_service.service.LibraryService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import com.bookbook.booklink.review_service.model.dto.response.ReviewListDto;
+import com.bookbook.booklink.review_service.service.ReviewService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,66 +30,23 @@ import java.util.UUID;
 @RestController
 @Validated
 @RequiredArgsConstructor
-@RequestMapping("/api/library")
-@Tag(name = "Library API", description = "도서관 등록/조회/수정 관련 API")
-public class LibraryController {
+public class LibraryController implements LibraryApiDocs {
     private final LibraryService libraryService;
+    private final ReviewService reviewService;
+    private final LibraryBookService libraryBookService;
 
-
-    @Operation(
-            summary = "도서관 등록",
-            description = "사용자 계정에 새로운 도서관을 등록합니다. " +
-                    "하나의 계정당 도서관은 하나만 등록 가능합니다.",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "도서관 등록 성공",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = BaseResponse.class),
-                                    examples = @ExampleObject(
-                                            name = "successResponse",
-                                            value = BaseResponse.SUCCESS_RESPONSE
-                                    )
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "입력값 오류로 인한 예외",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = BaseResponse.class),
-                                    examples = @ExampleObject(
-                                            name = "errorResponse",
-                                            value = BaseResponse.ERROR_RESPONSE
-                                    )
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "500",
-                            description = "서버 오류로 인한 예외",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = BaseResponse.class),
-                                    examples = @ExampleObject(
-                                            name = "errorResponse",
-                                            value = BaseResponse.ERROR_RESPONSE
-                                    )
-                            )
-                    )
-            }
-    )
-    @PostMapping
+    @Override
     public ResponseEntity<BaseResponse<UUID>> registerLibrary(
             @Valid @RequestBody LibraryRegDto libraryRegDto,
-            @RequestHeader("Trace-Id") String traceId
+            @RequestHeader("Trace-Id") String traceId,
+            @AuthenticationPrincipal(expression = "member") Member member
     ) {
-        UUID userId = UUID.randomUUID(); // todo: 실제 인증 정보에서 추출
+        UUID userId = member.getId();
 
         log.info("[LibraryController] [traceId = {}, userId = {}] register library request received, name={}",
                 traceId, userId, libraryRegDto.getName());
 
-        UUID savedLibraryId = libraryService.registerLibrary(libraryRegDto, traceId, userId);
+        UUID savedLibraryId = libraryService.registerLibrary(libraryRegDto, traceId, member);
 
         log.info("[LibraryController] [traceId = {}, userId = {}] register library response success, libraryId={}",
                 traceId, userId, savedLibraryId);
@@ -93,54 +54,13 @@ public class LibraryController {
                 .body(BaseResponse.success(savedLibraryId));
     }
 
-    @Operation(
-            summary = "도서관 수정",
-            description = "사용자 계정에 등록된 도서관을 수정합니다. ",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "도서관 수정 성공",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = BaseResponse.class),
-                                    examples = @ExampleObject(
-                                            name = "successResponse",
-                                            value = BaseResponse.SUCCESS_RESPONSE
-                                    )
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "입력값 오류로 인한 예외",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = BaseResponse.class),
-                                    examples = @ExampleObject(
-                                            name = "errorResponse",
-                                            value = BaseResponse.ERROR_RESPONSE
-                                    )
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "500",
-                            description = "서버 오류로 인한 예외",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = BaseResponse.class),
-                                    examples = @ExampleObject(
-                                            name = "errorResponse",
-                                            value = BaseResponse.ERROR_RESPONSE
-                                    )
-                            )
-                    )
-            }
-    )
-    @PutMapping
+    @Override
     public ResponseEntity<BaseResponse<UUID>> updateLibrary(
             @Valid @RequestBody LibraryUpdateDto libraryUpdateDto,
-            @RequestHeader("Trace-Id") String traceId
+            @RequestHeader("Trace-Id") String traceId,
+            @AuthenticationPrincipal(expression = "member") Member member
     ) {
-        UUID userId = UUID.randomUUID(); // todo: 실제 인증 정보에서 추출
+        UUID userId = member.getId();
         log.info("[LibraryController] [traceId = {}, userId = {}] update library request received, libraryId={}",
                 traceId, userId, libraryUpdateDto.getLibraryId());
 
@@ -152,54 +72,14 @@ public class LibraryController {
                 .body(BaseResponse.success(updatedLibraryId));
     }
 
-    @Operation(
-            summary = "도서관 삭제",
-            description = "사용자 계정에 등록된 도서관을 삭제합니다. ",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "도서관 삭제 성공",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = BaseResponse.class),
-                                    examples = @ExampleObject(
-                                            name = "successResponse",
-                                            value = BaseResponse.SUCCESS_RESPONSE
-                                    )
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "입력값 오류로 인한 예외",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = BaseResponse.class),
-                                    examples = @ExampleObject(
-                                            name = "errorResponse",
-                                            value = BaseResponse.ERROR_RESPONSE
-                                    )
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "500",
-                            description = "서버 오류로 인한 예외",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = BaseResponse.class),
-                                    examples = @ExampleObject(
-                                            name = "errorResponse",
-                                            value = BaseResponse.ERROR_RESPONSE
-                                    )
-                            )
-                    )
-            }
-    )
-    @DeleteMapping("/{id}")
+
+    @Override
     public ResponseEntity<BaseResponse<Boolean>> deleteLibrary(
             @PathVariable @NotNull(message = "수정할 도서관의 ID는 필수입니다.") UUID id,
-            @RequestHeader("Trace-Id") String traceId
+            @RequestHeader("Trace-Id") String traceId,
+            @AuthenticationPrincipal(expression = "member") Member member
     ) {
-        UUID userId = UUID.randomUUID(); // todo: 실제 인증 정보에서 추출
+        UUID userId = member.getId();
         log.info("[LibraryController] [traceId = {}, userId = {}] delete library request received, libraryId={}",
                 traceId, userId, id);
 
@@ -212,109 +92,66 @@ public class LibraryController {
                 .body(BaseResponse.success(Boolean.TRUE));
     }
 
-    @Operation(
-            summary = "특정 도서관 조회 (단일 객체 반환)",
-            description = "특정 도서관의 상세 정보를 조회합니다.",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "도서관 조회 성공",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = BaseResponse.class),
-                                    examples = @ExampleObject(
-                                            name = "successResponse",
-                                            value = BaseResponse.SUCCESS_RESPONSE
-                                    )
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "입력값 오류로 인한 예외",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = BaseResponse.class),
-                                    examples = @ExampleObject(
-                                            name = "errorResponse",
-                                            value = BaseResponse.ERROR_RESPONSE
-                                    )
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "500",
-                            description = "서버 오류로 인한 예외",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = BaseResponse.class),
-                                    examples = @ExampleObject(
-                                            name = "errorResponse",
-                                            value = BaseResponse.ERROR_RESPONSE
-                                    )
-                            )
-                    )
-            }
-    )
-    @GetMapping("/{id}")
+    @Override
+    public ResponseEntity<BaseResponse<LibraryDetailDto>> getMyLibrary(
+            @AuthenticationPrincipal(expression = "member") Member member
+    ) {
+        return ResponseEntity.ok()
+                .body(BaseResponse.success(libraryService.getMyLibrary(member)));
+    }
+
+    @Override
     public ResponseEntity<BaseResponse<LibraryDetailDto>> getLibrary(
             @PathVariable @NotNull(message = "조회할 도서관의 ID는 필수입니다.") UUID id
     ) {
-        LibraryDetailDto libraryDetailDto = libraryService.getLibrary(id);
+        List<LibraryBook> top5List = libraryBookService.findTop5Books(id);
+        List<ReviewListDto> top5Review = reviewService.getTop5LibraryReview(id);
+        LibraryDetailDto libraryDetailDto = libraryService.getLibrary(id, top5List, top5Review);
 
         return ResponseEntity.ok()
                 .body(BaseResponse.success(libraryDetailDto));
     }
 
-    @Operation(
-            summary = "내 주변 3km 이내의 도서관 조회 (리스트 반환)",
-            description = "내 주변 3km 이내의 도서관을 조회해 반환합니다.",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "조회 성공",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = BaseResponse.class),
-                                    examples = @ExampleObject(
-                                            name = "successResponse",
-                                            value = BaseResponse.SUCCESS_RESPONSE
-                                    )
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "입력값 오류로 인한 예외",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = BaseResponse.class),
-                                    examples = @ExampleObject(
-                                            name = "errorResponse",
-                                            value = BaseResponse.ERROR_RESPONSE
-                                    )
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "500",
-                            description = "서버 오류로 인한 예외",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = BaseResponse.class),
-                                    examples = @ExampleObject(
-                                            name = "errorResponse",
-                                            value = BaseResponse.ERROR_RESPONSE
-                                    )
-                            )
-                    )
-            }
-    )
-    @GetMapping
-    public ResponseEntity<BaseResponse<List<LibraryDetailDto>>> getLibraries(
+    @Override
+    public ResponseEntity<BaseResponse<PageResponse<LibraryDetailDto>>> getLibraries(
             @RequestParam Double lat,
-            @RequestParam Double lng
+            @RequestParam Double lng,
+            @RequestParam(required = false) String name,
+            @PageableDefault(page = 0, size = 10) Pageable pageable
     ) {
 
-        List<LibraryDetailDto> result = libraryService.getLibraries(lat, lng);
+        PageResponse<LibraryDetailDto> result = libraryService.getLibraries(lat, lng, name, pageable);
 
         return ResponseEntity.ok()
                 .body(BaseResponse.success(result));
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse<PageResponse<LibraryDetailDto>>> getLikedLibraries(
+            @PageableDefault(page = 0, size = 10) Pageable pageable,
+            @AuthenticationPrincipal(expression = "member") Member member
+    ) {
+        return ResponseEntity.ok()
+                .body(BaseResponse.success(libraryService.getLikedLibraries(member, pageable)));
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse<Boolean>> likeLibrary(
+            @PathVariable UUID libraryId,
+            @AuthenticationPrincipal(expression = "member") Member member
+    ) {
+        libraryService.likeLibrary(libraryId, member);
+        return ResponseEntity.ok()
+                .body(BaseResponse.success(Boolean.TRUE));
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse<Boolean>> unLikeLibrary(
+            @PathVariable UUID libraryId,
+            @AuthenticationPrincipal(expression = "member") Member member
+    ) {
+        libraryService.unlikeLibrary(libraryId, member);
+        return ResponseEntity.ok()
+                .body(BaseResponse.success(Boolean.TRUE));
     }
 }

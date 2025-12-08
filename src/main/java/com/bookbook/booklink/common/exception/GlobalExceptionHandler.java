@@ -1,6 +1,8 @@
 package com.bookbook.booklink.common.exception;
 
+import com.bookbook.booklink.common.dto.BaseResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.Arrays;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
@@ -25,6 +28,7 @@ public class GlobalExceptionHandler {
     public GlobalExceptionHandler() {
     }
 
+    @ExceptionHandler(ValidationException.class)
     private ResponseEntity<BaseResponse<Object>> buildValidationErrorResponse(
             BindingResult bindingResult, HttpServletRequest request) {
         ErrorCode errorCode = ErrorCode.VALIDATION_FAILED;
@@ -170,10 +174,11 @@ public class GlobalExceptionHandler {
         }
 
         ErrorCode code = ErrorCode.UNKNOWN_ERROR;
+        String message = ex.getMessage() + "\n" + Arrays.toString(ex.getStackTrace());
 
         return ResponseEntity
                 .status(code.getHttpStatus().value())
-                .body(BaseResponse.error(code, path));
+                .body(BaseResponse.error(message, path));
     }
 
 }

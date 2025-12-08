@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket Chat Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #fafafa; }
+        #chatLog { border: 1px solid #ccc; padding: 10px; height: 400px; overflow-y: auto; margin-top: 10px; background: white; }
+        .message { margin: 8px 0; display: flex; }
+        .mine { justify-content: flex-end; }
+        .mine .bubble {
+            background: #d1e7ff;
+            color: #004085;
+            align-self: flex-end;
+        }
+        .theirs .bubble {
+            background: #f1f1f1;
+            color: #333;
+        }
+        .bubble {
+            padding: 8px 12px;
+            border-radius: 15px;
+            max-width: 60%;
+            word-wrap: break-word;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .system {
+            text-align: center;
+            font-size: 0.85em;
+            color: gray;
+            margin: 10px 0;
+        }
+        input { margin: 5px; }
+        button { margin: 5px; }
+    </style>
+</head>
+<body>
+<h2>WebSocket Chat Test</h2>
+
+<div>
+    <input id="tokenInput" placeholder="AccessToken 입력" style="width:500px;">
+    <input id="chatIdInput" placeholder="채팅방 ID 입력" style="width:300px;">
+    <button onclick="connect()">Connect</button>
+</div>
+
+<div>
+    <input id="messageInput" placeholder="메시지 입력" style="width:400px;">
+    <button onclick="sendMessage()">Send</button>
+</div>
+
+<div id="chatLog"></div>
+
+<script>
+    let stompClient = null;
+    let currentChatId = null;
+    let myEmail = null;
+
+    // JWT에서 email 추출
+    function parseJwt(token) {
+        try {
+            const base64Payload = token.split('.')[1];
+            const payload = JSON.parse(atob(base64Payload));
+            return payload.sub || payload.email || null;
+        } catch (e) {
+            console.error("JWT 파싱 실패:", e);
+            return null;
+        }
+    }
+
+    function connect() {
+        const token = document.getElementById("tokenInput").value.trim();
+        const chatId = document.getElementById("chatIdInput").value.trim();
+        currentChatId = chatId;
+
+        if (!token || !chatId) {
+            logSystem("❌ 토큰과 채팅방 ID를 모두 입력하세요.");
+            return;
+        }
+
+        myEmail = parseJwt(token);
+        if (!myEmail) {
+            logSystem("❌ JWT에서 이메일을 추출할 수 없습니다.");
+            return;
+        }
+
+        const socket = new WebSocket("ws://localhost:8080/ws/chat?token=" + token);
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, () => {
+            logSystem("✅ WebSocket 연결 성공 (" + myEmail + ")");
+
+            stompClient.subscribe("/sub/chat/" + chatId, (message) => {
+                const msg = JSON.parse(message.body);
+                displayMessage(msg);
+            });
+        }, (error) => {
+            logSystem("❌ 연결 실패: " + error);
+        });
+    }
+
+    function sendMessage() {
+        const text = document.getElementById("messageInput").value.trim();
+        if (!stompClient || !stompClient.connected) {
+            logSystem("❌ 먼저 Connect 버튼으로 연결하세요.");
+            return;
+        }
+        if (!text) {
+            logSystem("⚠️ 전송할 메시지를 입력하세요.");
+            return;
+        }
+
+        const msg = { chatId: currentChatId, text: text };
+        stompClient.send("/pub/chat/send", {}, JSON.stringify(msg));
+        document.getElementById("messageInput").value = "";
+    }
+
+    function displayMessage(msg) {
+        // 서버에서 내려준 senderEmail이 있다고 가정 (없다면 서버 DTO에 추가 필요)
+        const sender = msg.senderEmail || "unknown";
+        const text = msg.text;
+
+        if (sender === myEmail) {
+            logMessage(text, "mine");
+        } else {
+            logMessage(text, "theirs");
+        }
+    }
+
+    function logMessage(text, type) {
+        const chatLog = document.getElementById("chatLog");
+        const messageDiv = document.createElement("div");
+        messageDiv.classList.add("message", type);
+        const bubble = document.createElement("div");
+        bubble.classList.add("bubble");
+        bubble.textContent = text;
+        messageDiv.appendChild(bubble);
+        chatLog.appendChild(messageDiv);
+        chatLog.scrollTop = chatLog.scrollHeight;
+    }
+
+    function logSystem(text) {
+        const chatLog = document.getElementById("chatLog");
+        const sysMsg = document.createElement("div");
+        sysMsg.classList.add("system");
+        sysMsg.textContent = text;
+        chatLog.appendChild(sysMsg);
+        chatLog.scrollTop = chatLog.scrollHeight;
+    }
+</script>
+</body>
+</html>
