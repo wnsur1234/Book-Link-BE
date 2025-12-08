@@ -15,4 +15,5 @@ public interface LibraryBookListProjection {
     Integer getDeposit();
     Integer getRentedOut();
     LocalDateTime getExpectedReturnDate();
+    Integer getMine();
 }

@@ -267,11 +267,4 @@ public class LibraryService {
         Page<LibraryDetailDto> dtoPage = libraryPage.map(LibraryDetailDto::fromEntity);
         return PageResponse.from(dtoPage);
     }
-
-
-    public UUID getMyLibraryId(UUID userId) {
-        return Objects.requireNonNull(libraryRepository.findByMemberId(userId)
-                        .orElse(null))
-                .getId();
-    }
 }

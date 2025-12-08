@@ -1,6 +1,5 @@
 package com.bookbook.booklink.book_service.service;
 
-import com.bookbook.booklink.auth_service.service.MemberService;
 import com.bookbook.booklink.book_service.model.Book;
 import com.bookbook.booklink.book_service.model.LibraryBook;
 import com.bookbook.booklink.book_service.model.LibraryBookCopy;
@@ -16,7 +15,7 @@ import com.bookbook.booklink.common.exception.ErrorCode;
 import com.bookbook.booklink.common.service.IdempotencyService;
 import com.bookbook.booklink.library_service.model.Library;
 import com.bookbook.booklink.library_service.model.dto.response.LibraryBookListProjection;
-import com.bookbook.booklink.library_service.service.LibraryService;
+import com.bookbook.booklink.library_service.repository.LibraryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -24,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Slf4j
@@ -33,8 +33,7 @@ public class LibraryBookService {
     private final LibraryBookRepository libraryBookRepository;
     private final IdempotencyService idempotencyService;
     private final BookService bookService;
-    private final LibraryService libraryService;
-    private final MemberService memberService;
+    private final LibraryRepository libraryRepository;
 
     @Transactional
     public UUID registerLibraryBook(LibraryBookRegisterDto bookRegisterDto, String traceId, UUID userId, Library library) {
@@ -101,12 +100,10 @@ public class LibraryBookService {
         Double lat = request.getLatitude();
         Double lng = request.getLongitude();
         UUID libraryId = request.getLibraryId();
-
-        UUID myLibraryId = libraryService.getMyLibraryId(userId);
-        boolean isMyLibrary = libraryId.equals(myLibraryId);
+        UUID myLibraryId = getMyLibraryId(userId);
 
         List<LibraryBookListProjection> projections =
-                libraryBookRepository.findLibraryBooksBySearch(lat, lng, libraryId, request.getBookName(), request.getSortType().toString(), size, offset);
+                libraryBookRepository.findLibraryBooksBySearch(lat, lng, libraryId, myLibraryId, request.getBookName(), request.getSortType().toString(), size, offset);
 
         long total = libraryBookRepository.countLibraryBooksBySearch(libraryId, request.getBookName());
 
@@ -124,7 +121,7 @@ public class LibraryBookService {
                         .rentedOut(p.getRentedOut() != null && p.getRentedOut() == 1)
                         .expectedReturnDate(p.getExpectedReturnDate())
                         .imageUrl(p.getImageUrl())
-                        .isMine(isMyLibrary)
+                        .isMine(p.getMine() == 1)
                         .build())
                 .toList();
 
@@ -181,9 +178,8 @@ public class LibraryBookService {
         Book book = libraryBook.getBook();
         Library library = libraryBook.getLibrary();
 
-        UUID myLibraryId = libraryService.getMyLibraryId(userId);
-
-        boolean isMyLibrary = library.getId().equals(myLibraryId);
+        UUID myLibraryId = getMyLibraryId(userId);
+        boolean isMyLibrary = Objects.equals(library.getId(), myLibraryId);
 
         LibraryDto libraryDto = LibraryDto.builder()
                 .id(library.getId())
@@ -222,6 +218,12 @@ public class LibraryBookService {
                 .libraryDto(libraryDto)
                 .isMine(isMyLibrary)
                 .build();
+    }
+
+    public UUID getMyLibraryId(UUID userId) {
+        return Objects.requireNonNull(libraryRepository.findByMemberId(userId)
+                        .orElse(null))
+                .getId();
     }
 }
     

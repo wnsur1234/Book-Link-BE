@@ -17,6 +17,12 @@ public interface LibraryBookRepository extends JpaRepository<LibraryBook, UUID> 
             SELECT
                 lb.id AS id,
                 l.name AS libraryName,
+                CASE
+                    WHEN :myLibraryId IS NOT NULL
+                        AND l.id = :myLibraryId
+                    THEN true
+                    ELSE false
+                END AS mine,
                 b.title AS title,
                 b.author AS author,
                 lb.copies AS copies,
@@ -56,6 +62,7 @@ public interface LibraryBookRepository extends JpaRepository<LibraryBook, UUID> 
             @Param("lat") Double lat,
             @Param("lng") Double lng,
             @Param("libraryId")  UUID libraryId,
+            @Param("myLibraryId") UUID myLibraryId,
             @Param("bookName") String bookName,
             @Param("sortType") String sortType,
             @Param("limit") int limit,
