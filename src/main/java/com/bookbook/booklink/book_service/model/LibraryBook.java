@@ -36,6 +36,10 @@ public class LibraryBook {
     @Getter
     private UUID id;
 
+    @Column(nullable = true) // todo : 기존 데이터에 대해 migration 필요
+    @Schema(description = "도서 설명", example = "도서 상태 상급의 깨끗한 도서로, 쾌적하게 이용 가능합니다.", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String description;
+
     @Min(0)
     @Column(nullable = false)
     @Schema(description = "보유 권수", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -100,6 +104,7 @@ public class LibraryBook {
             , Library library
     ) {
         LibraryBook libraryBook = LibraryBook.builder()
+                .description(libraryBookRegisterDto.getDescription())
                 .copies(0)
                 .availableBooks(0)
                 .deposit(libraryBookRegisterDto.getDeposit())
