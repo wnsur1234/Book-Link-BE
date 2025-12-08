@@ -82,6 +82,7 @@ public interface LibraryBookApiDocs {
     @ApiErrorResponses({ErrorCode.DATABASE_ERROR, ErrorCode.BOOK_NOT_FOUND})
     @GetMapping("/{libraryBookId}")
     public ResponseEntity<BaseResponse<LibraryBookDetailResDto>> getLibraryBookDetail(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @NotNull(message = "도서관별 도서 아이디는 필수입니다.") @PathVariable UUID libraryBookId
     );
 }

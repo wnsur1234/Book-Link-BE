@@ -44,4 +44,7 @@ public class LibraryBookListDto {
 
     @Schema(description = "예상 반납 기한 (모든 책이 대여중일 때만 표시)", example = "2025-10-05T00:00:00", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private final LocalDateTime expectedReturnDate;
+
+    @Schema(description = "내 도서관의 도서인지 여부", example = "false", requiredMode = Schema.RequiredMode.REQUIRED)
+    private final boolean isMine;
 }
