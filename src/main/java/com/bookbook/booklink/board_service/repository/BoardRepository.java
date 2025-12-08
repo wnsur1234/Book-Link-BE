@@ -17,8 +17,7 @@ public interface BoardRepository extends JpaRepository<Board, UUID> {
     @Query("SELECT b FROM Board b " +
             "WHERE b.deletedAt IS NULL " +
             "AND (:title IS NULL OR b.title LIKE %:title%) " +
-            "AND (:category IS NULL OR b.category = :category) " +
-            "ORDER BY b.createdAt DESC")
+            "AND (:category IS NULL OR b.category = :category) ")
     List<Board> findByTitleAndCategory(@Param("title") String title,
                                        @Param("category") BoardCategory category,
                                        Sort sort);
