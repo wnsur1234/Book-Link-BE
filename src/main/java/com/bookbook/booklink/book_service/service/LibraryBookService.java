@@ -75,6 +75,7 @@ public class LibraryBookService {
 
         if (updateBookDto.getCopies() != null) libraryBook.updateCopies(updateBookDto.getCopies());
         if (updateBookDto.getDeposit() != null) libraryBook.updateDeposit(updateBookDto.getDeposit());
+        if (updateBookDto.getDescription() != null) libraryBook.updateDescription(updateBookDto.getDescription());
         if (updateBookDto.getPreviewImages() != null) {
             libraryBook.updatePreviewImages(updateBookDto.getPreviewImages());
         }
@@ -112,6 +113,7 @@ public class LibraryBookService {
                 .map(p -> LibraryBookListDto.builder()
                         .id(p.getId())
                         .title(p.getTitle())
+                        .description(p.getDescription())
                         .author(p.getAuthor())
                         .libraryName(p.getLibraryName())
                         .distance(p.getDistance())
@@ -199,11 +201,12 @@ public class LibraryBookService {
                 .build();
         LibraryBookDetailDto libraryBookDetailDto = LibraryBookDetailDto.builder()
                 .id(libraryBook.getId())
+                .description(libraryBook.getDescription())
                 .copies(libraryBook.getCopies())
                 .deposit(libraryBook.getDeposit())
                 .borrowedCount(libraryBook.getBorrowedCount())
                 .borrowedStatus(LibraryBookStatus.AVAILABLE.toString())
-                /* .previewImages(libraryBook.getPreviewImageList()) */ // todo : image 관련 merge 되고 추가
+                .previewImages(libraryBook.getPreviewImageListToString())
                 .build();
 
         // todo : libraryBook 의 대여 상태 판별

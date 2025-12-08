@@ -15,6 +15,10 @@ public class LibraryBookRegisterDto {
     @NotNull(message = "도서 ID는 필수입니다.")
     UUID id;
 
+    @NotNull(message = "도서 설명은 필수입니다.")
+    @Schema(description = "도서 설명", example = "도서 상태 상급의 깨끗한 도서로, 쾌적하게 이용 가능합니다.", requiredMode = Schema.RequiredMode.REQUIRED)
+    String description;
+
     @Schema(description = "보유 권수", example = "2", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "보유 권수는 필수입니다.")
     @Min(value = 0, message = "보유한 도서 개수는 양수여야 합니다.")

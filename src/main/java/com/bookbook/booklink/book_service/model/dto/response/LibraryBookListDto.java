@@ -21,6 +21,9 @@ public class LibraryBookListDto {
     @Schema(description = "책 제목", example = "마흔에 읽는 쇼펜하우어", requiredMode = Schema.RequiredMode.REQUIRED)
     private final String title;
 
+    @Schema(description = "도서 설명", example = "도서 상태 상급의 깨끗한 도서로, 쾌적하게 이용 가능합니다.")
+    private final String description;
+
     @Schema(description = "저자명", example = "강용수", requiredMode = Schema.RequiredMode.REQUIRED)
     private final String author;
 

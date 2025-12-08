@@ -29,6 +29,7 @@ public interface LibraryBookRepository extends JpaRepository<LibraryBook, UUID> 
                 lb.borrowed_count AS borrowedCount,
                 lb.deposit AS deposit,
                 (lb.copies = lb.borrowed_count) AS rentedOut,
+                lb.description AS description,
                 CASE
                     WHEN lb.copies = lb.borrowed_count THEN MIN(CASE WHEN lbc.due_at >= NOW() THEN lbc.due_at END)
                     ELSE NULL

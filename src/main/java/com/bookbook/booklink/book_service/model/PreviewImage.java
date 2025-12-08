@@ -21,6 +21,7 @@ public class PreviewImage {
     @Getter
     private UUID id;
 
+    @Getter
     @Column(nullable = false, length = 2048)
     @Schema(description = "미리보기 이미지 경로", example = "https://{버킷이름}.s3.{리전}.amazonaws.com/{파일경로}", requiredMode = Schema.RequiredMode.REQUIRED)
     private String imageUrl;
