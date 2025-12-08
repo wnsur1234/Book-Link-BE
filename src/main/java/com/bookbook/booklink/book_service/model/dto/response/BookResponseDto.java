@@ -1,5 +1,6 @@
 package com.bookbook.booklink.book_service.model.dto.response;
 
+import com.bookbook.booklink.book_service.model.Book;
 import com.bookbook.booklink.book_service.model.BookCategory;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -23,8 +24,8 @@ public class BookResponseDto {
     private String author;
     @Schema(description = "출판사", example = "유노북스", requiredMode = Schema.RequiredMode.REQUIRED, minLength = 1, maxLength = 16)
     private String publisher;
-    @Schema(description = "카테고리", example = "GENERALITIES", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private BookCategory category;
+    @Schema(description = "카테고리", example = "000", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private String category;
     @Schema(description = "ISBN 코드", example = "9791192300818", requiredMode = Schema.RequiredMode.REQUIRED)
     private String ISBN;
     @Schema(description = "도서 정가", example = "17000", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -34,4 +35,17 @@ public class BookResponseDto {
 
     @Schema(description = "national library 에서 가져오면 true, 우리 데이터베이스에서 가져오면 false", example = "true", requiredMode = Schema.RequiredMode.REQUIRED)
     private boolean foundInNationalLibrary;
+
+    public static BookResponseDto toEntity(Book book) {
+        return BookResponseDto.builder()
+                .id(book.getId())
+                .title(book.getTitle())
+                .author(book.getAuthor())
+                .publisher(book.getPublisher())
+                .category(book.getCategory().getCategoryCode())
+                .ISBN(book.getISBN())
+                .originalPrice(book.getOriginalPrice())
+                .publishedDate(book.getPublishedDate().toLocalDate())
+                .build();
+    }
 }
