@@ -32,7 +32,7 @@ public class BookService {
 
         Book book = bookRepository.findByISBN(isbn);
         if (book != null) {
-            BookResponseDto dto = modelMapper.map(book, BookResponseDto.class);
+            BookResponseDto dto = BookResponseDto.toEntity(book);
             dto.setFoundInNationalLibrary(false);
             log.info("[BookService] [traceId={}, userId={}] found bookId={}", traceId, userId, dto.getId());
             return dto;
