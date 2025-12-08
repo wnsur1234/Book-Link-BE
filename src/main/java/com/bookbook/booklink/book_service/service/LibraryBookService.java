@@ -113,6 +113,7 @@ public class LibraryBookService {
                 .map(p -> LibraryBookListDto.builder()
                         .id(p.getId())
                         .title(p.getTitle())
+                        .description(p.getDescription())
                         .author(p.getAuthor())
                         .libraryName(p.getLibraryName())
                         .distance(p.getDistance())
