@@ -21,6 +21,9 @@ public class LibraryBookListDto {
     @Schema(description = "책 제목", example = "마흔에 읽는 쇼펜하우어", requiredMode = Schema.RequiredMode.REQUIRED)
     private final String title;
 
+    @Schema(description = "도서 설명", example = "도서 상태 상급의 깨끗한 도서로, 쾌적하게 이용 가능합니다.")
+    private final String description;
+
     @Schema(description = "저자명", example = "강용수", requiredMode = Schema.RequiredMode.REQUIRED)
     private final String author;
 
@@ -44,4 +47,7 @@ public class LibraryBookListDto {
 
     @Schema(description = "예상 반납 기한 (모든 책이 대여중일 때만 표시)", example = "2025-10-05T00:00:00", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private final LocalDateTime expectedReturnDate;
+
+    @Schema(description = "내 도서관의 도서인지 여부", example = "false", requiredMode = Schema.RequiredMode.REQUIRED)
+    private final boolean isMine;
 }

@@ -11,4 +11,7 @@ public class LibraryBookDetailResDto {
     private LibraryDto libraryDto;
     private LibraryBookDetailDto libraryBookDetailDto;
     private BookDetailDto bookDetailDto;
+
+    @Schema(description = "내 도서관의 도서인지 여부", example = "false", requiredMode = Schema.RequiredMode.REQUIRED)
+    private final boolean isMine;
 }

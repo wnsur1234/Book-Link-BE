@@ -24,10 +24,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -223,7 +220,8 @@ public class LibraryService {
     }
 
     public Library findByUserId(UUID userId) {
-        return libraryRepository.findByMemberId(userId);
+        return libraryRepository.findByMemberId(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.LIBRARY_NOT_FOUND));
     }
 
     /**
@@ -269,6 +267,4 @@ public class LibraryService {
         Page<LibraryDetailDto> dtoPage = libraryPage.map(LibraryDetailDto::fromEntity);
         return PageResponse.from(dtoPage);
     }
-
-
 }

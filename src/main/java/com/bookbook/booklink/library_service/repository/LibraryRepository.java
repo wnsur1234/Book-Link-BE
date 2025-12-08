@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -48,6 +49,6 @@ public interface LibraryRepository extends JpaRepository<Library, UUID> {
     @Query(value = "SELECT * FROM library " +
             "WHERE member_id = :userId ",
             nativeQuery = true)
-    Library findByMemberId(@Param("userId") UUID userId);
+    Optional<Library> findByMemberId(@Param("userId") UUID userId);
 }
     

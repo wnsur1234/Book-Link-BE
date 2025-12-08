@@ -15,7 +15,7 @@ import com.bookbook.booklink.common.exception.ErrorCode;
 import com.bookbook.booklink.common.service.IdempotencyService;
 import com.bookbook.booklink.library_service.model.Library;
 import com.bookbook.booklink.library_service.model.dto.response.LibraryBookListProjection;
-import com.bookbook.booklink.library_service.service.LibraryService;
+import com.bookbook.booklink.library_service.repository.LibraryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Slf4j
@@ -32,6 +33,7 @@ public class LibraryBookService {
     private final LibraryBookRepository libraryBookRepository;
     private final IdempotencyService idempotencyService;
     private final BookService bookService;
+    private final LibraryRepository libraryRepository;
 
     @Transactional
     public UUID registerLibraryBook(LibraryBookRegisterDto bookRegisterDto, String traceId, UUID userId, Library library) {
@@ -73,6 +75,7 @@ public class LibraryBookService {
 
         if (updateBookDto.getCopies() != null) libraryBook.updateCopies(updateBookDto.getCopies());
         if (updateBookDto.getDeposit() != null) libraryBook.updateDeposit(updateBookDto.getDeposit());
+        if (updateBookDto.getDescription() != null) libraryBook.updateDescription(updateBookDto.getDescription());
         if (updateBookDto.getPreviewImages() != null) {
             libraryBook.updatePreviewImages(updateBookDto.getPreviewImages());
         }
@@ -98,9 +101,10 @@ public class LibraryBookService {
         Double lat = request.getLatitude();
         Double lng = request.getLongitude();
         UUID libraryId = request.getLibraryId();
+        UUID myLibraryId = getMyLibraryId(userId);
 
         List<LibraryBookListProjection> projections =
-                libraryBookRepository.findLibraryBooksBySearch(lat, lng, libraryId, request.getBookName(), request.getSortType().toString(), size, offset);
+                libraryBookRepository.findLibraryBooksBySearch(lat, lng, libraryId, myLibraryId, request.getBookName(), request.getSortType().toString(), size, offset);
 
         long total = libraryBookRepository.countLibraryBooksBySearch(libraryId, request.getBookName());
 
@@ -109,6 +113,7 @@ public class LibraryBookService {
                 .map(p -> LibraryBookListDto.builder()
                         .id(p.getId())
                         .title(p.getTitle())
+                        .description(p.getDescription())
                         .author(p.getAuthor())
                         .libraryName(p.getLibraryName())
                         .distance(p.getDistance())
@@ -118,6 +123,7 @@ public class LibraryBookService {
                         .rentedOut(p.getRentedOut() != null && p.getRentedOut() == 1)
                         .expectedReturnDate(p.getExpectedReturnDate())
                         .imageUrl(p.getImageUrl())
+                        .isMine(p.getMine() == 1)
                         .build())
                 .toList();
 
@@ -168,11 +174,14 @@ public class LibraryBookService {
     }
 
     @Transactional(readOnly = true)
-    public LibraryBookDetailResDto getLibraryBookDetail(UUID libraryBookId) {
+    public LibraryBookDetailResDto getLibraryBookDetail(UUID libraryBookId, UUID userId) {
         LibraryBook libraryBook = libraryBookRepository.findById(libraryBookId)
                 .orElseThrow(() -> new CustomException(ErrorCode.BOOK_NOT_FOUND));
         Book book = libraryBook.getBook();
         Library library = libraryBook.getLibrary();
+
+        UUID myLibraryId = getMyLibraryId(userId);
+        boolean isMyLibrary = Objects.equals(library.getId(), myLibraryId);
 
         LibraryDto libraryDto = LibraryDto.builder()
                 .id(library.getId())
@@ -192,11 +201,12 @@ public class LibraryBookService {
                 .build();
         LibraryBookDetailDto libraryBookDetailDto = LibraryBookDetailDto.builder()
                 .id(libraryBook.getId())
+                .description(libraryBook.getDescription())
                 .copies(libraryBook.getCopies())
                 .deposit(libraryBook.getDeposit())
                 .borrowedCount(libraryBook.getBorrowedCount())
                 .borrowedStatus(LibraryBookStatus.AVAILABLE.toString())
-                /* .previewImages(libraryBook.getPreviewImageList()) */ // todo : image 관련 merge 되고 추가
+                .previewImages(libraryBook.getPreviewImageListToString())
                 .build();
 
         // todo : libraryBook 의 대여 상태 판별
@@ -209,7 +219,14 @@ public class LibraryBookService {
                 .bookDetailDto(bookDetailDto)
                 .libraryBookDetailDto(libraryBookDetailDto)
                 .libraryDto(libraryDto)
+                .isMine(isMyLibrary)
                 .build();
+    }
+
+    public UUID getMyLibraryId(UUID userId) {
+        return Objects.requireNonNull(libraryRepository.findByMemberId(userId)
+                        .orElse(null))
+                .getId();
     }
 }
     
