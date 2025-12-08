@@ -15,6 +15,9 @@ public class LibraryBookDetailDto {
     @Schema(description = "도서 고유 ID (UUID)", example = "550e8400-e29b-41d4-a716-446655440000", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private final UUID id;
 
+    @Schema(description = "도서 설명", example = "도서 상태 상급의 깨끗한 도서로, 쾌적하게 이용 가능합니다.")
+    private final String description;
+
     @Schema(description = "대여 상태", example = "AVAILABLE(대여 가능), RESERVABLE(예약 가능), BORROWED(대여 중), RESERVED(예약 중)", requiredMode = Schema.RequiredMode.REQUIRED, minLength = 1, maxLength = 64)
     private final LibraryBookStatus status; // todo : 대여 상태 등으로 변경
 

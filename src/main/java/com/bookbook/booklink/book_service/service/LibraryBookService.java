@@ -201,11 +201,12 @@ public class LibraryBookService {
                 .build();
         LibraryBookDetailDto libraryBookDetailDto = LibraryBookDetailDto.builder()
                 .id(libraryBook.getId())
+                .description(libraryBook.getDescription())
                 .copies(libraryBook.getCopies())
                 .deposit(libraryBook.getDeposit())
                 .borrowedCount(libraryBook.getBorrowedCount())
                 .borrowedStatus(LibraryBookStatus.AVAILABLE.toString())
-                /* .previewImages(libraryBook.getPreviewImageList()) */ // todo : image 관련 merge 되고 추가
+                .previewImages(libraryBook.getPreviewImageListToString())
                 .build();
 
         // todo : libraryBook 의 대여 상태 판별

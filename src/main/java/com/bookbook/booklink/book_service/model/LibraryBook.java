@@ -222,4 +222,10 @@ public class LibraryBook {
         }
         this.description = description;
     }
+
+    public List<String> getPreviewImageListToString() {
+        return this.previewImageList.stream()
+                .map(PreviewImage::getImageUrl)
+                .toList();
+    }
 }
