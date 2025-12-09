@@ -24,7 +24,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "groups")
+@Table(name = "group_table")
 @Schema(description = "모임(그룹) 정보 엔티티")
 public class Group {
 

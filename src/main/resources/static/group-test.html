@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Group Chat Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+</head>
+<body>
+<h2>Group WebSocket Chat Test</h2>
+
+<div>
+    <input id="tokenInput" placeholder="AccessToken 입력" style="width:500px;">
+    <input id="chatIdInput" placeholder="그룹 채팅방 ID 입력" style="width:300px;">
+    <button onclick="connect()">Connect</button>
+</div>
+
+<div>
+    <input id="messageInput" placeholder="메시지 입력" style="width:400px;">
+    <button onclick="sendMessage()">Send</button>
+</div>
+
+<div id="chatLog"></div>
+
+<script>
+    let stompClient = null;
+    let currentChatId = null;
+
+    function connect() {
+        const token = document.getElementById("tokenInput").value.trim();
+        const chatId = document.getElementById("chatIdInput").value.trim();
+        currentChatId = chatId;
+
+        const socket = new WebSocket("ws://localhost:8080/ws/chat?token=" + token);
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, () => {
+            logSystem("그룹채팅 WebSocket 연결됨");
+
+            stompClient.subscribe("/sub/group/" + chatId, (message) => {
+                const msg = JSON.parse(message.body);
+                displayMessage(msg);
+            });
+        });
+    }
+
+    function sendMessage() {
+        const text = document.getElementById("messageInput").value.trim();
+        const msg = { chatId: currentChatId, text: text };
+        stompClient.send("/pub/group/send", {}, JSON.stringify(msg));
+        document.getElementById("messageInput").value = "";
+    }
+
+    function displayMessage(msg) {
+        const log = document.getElementById("chatLog");
+        log.innerHTML += "<div>" + msg.text + "</div>";
+    }
+
+    function logSystem(text) {
+        const log = document.getElementById("chatLog");
+        log.innerHTML += "<div style='color:gray'>" + text + "</div>";
+    }
+</script>
+</body>
+</html>

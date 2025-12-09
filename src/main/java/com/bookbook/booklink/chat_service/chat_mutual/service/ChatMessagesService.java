@@ -32,9 +32,14 @@ public class ChatMessagesService {
                 .toList();
     }
     @Transactional
-    public ChatMessages saveMessagesEntity(Member member, MessageReqDto dto) {
+    public ChatMessages saveSingleMessagesEntity(Member member, MessageReqDto dto) {
         ChatMessages chatMessages = ChatMessages.saveSingleRoomMessage(member,dto);
         return chatMessagesRepository.save(chatMessages);
     }
 
+    @Transactional
+    public ChatMessages saveGroupMessagesEntity(Member member, MessageReqDto dto) {
+        ChatMessages chatMessages = ChatMessages.saveGroupMessage(member,dto);
+        return chatMessagesRepository.save(chatMessages);
+    }
 }

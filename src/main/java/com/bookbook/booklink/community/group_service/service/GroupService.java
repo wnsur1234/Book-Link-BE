@@ -64,7 +64,7 @@ public class GroupService {
         log.info("[GroupService] [traceId={}, userId={}] create group success, groupId={}",
                 traceId, member.getId(), savedGroup.getId());
 
-        //todo: 단톡도 생성
+        // 단톡 생성
         groupChatsService.createGroupChatRoom(savedGroup);
     }
 

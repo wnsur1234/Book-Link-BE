@@ -82,7 +82,7 @@ public class SingleChatsService {
 
         if (!room.hasMember(member.getId())) {throw new CustomException(ErrorCode.CHAT_ROOM_FORBIDDEN);}
 
-        ChatMessages saved = chatMessagesService.saveMessagesEntity(member,dto);
+        ChatMessages saved = chatMessagesService.saveSingleMessagesEntity(member,dto);
 
 
         room.updateLastMessage(saved.getText(), saved.getSentAt());
@@ -133,7 +133,7 @@ public class SingleChatsService {
                 .type(MessageType.SYSTEM)
                 .build();
 
-        ChatMessages saved = chatMessagesService.saveMessagesEntity(member, systemMessage);
+        ChatMessages saved = chatMessagesService.saveSingleMessagesEntity(member, systemMessage);
 
         room.updateLastMessage(saved.getText(), saved.getSentAt());
 
