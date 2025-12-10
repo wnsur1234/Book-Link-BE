@@ -38,6 +38,9 @@ public class GroupDetailDto {
     @Schema(description = "모임을 만든 주최자(호스트) 사용자 이름", example = "책읽는_곰")
     private String hostName;
 
+    @Schema(description = "모임을 만든 주최자(호스트) 사용자 아이디(UUID)", example = "a1b2c3d4-e5f6-7890-1234-567890abcdef")
+    private UUID hostId;
+
     @Schema(description = "비공개 여부 (true: 비공개, false: 공개)", example = "false")
     private Boolean isPrivate;
 
@@ -53,6 +56,7 @@ public class GroupDetailDto {
                 .participantCount(group.getParticipantCount())
                 .maxCapacity(group.getMaxCapacity())
                 .hostName(group.getHostName())
+                .hostId(group.getHostId())
                 .isPrivate(group.getIsPrivate())
                 .memberList(memberList)
                 .build();
