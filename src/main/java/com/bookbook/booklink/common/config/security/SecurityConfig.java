@@ -60,7 +60,7 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
                         // 정적/웹소켓 등 허용
                         .requestMatchers(
-                                "/chat-test.html","/chat-test-2.html", "/ws/**", "/favicon.ico",
+                                "/chat-test.html","/group-test.html", "/ws/**", "/favicon.ico",
                                 "/css/**", "/js/**", "/images/**"
                         ).permitAll()
                         .anyRequest().authenticated()
