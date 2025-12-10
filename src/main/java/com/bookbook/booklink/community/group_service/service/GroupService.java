@@ -33,6 +33,7 @@ public class GroupService {
     private final GroupMemberRepository groupMemberRepository;
     private final PasswordEncoder passwordEncoder;
     private final GroupChatsService groupChatsService;
+
     /**
      * 새로운 모임을 생성하고 생성자를 해당 모임의 호스트 및 멤버로 등록합니다.
      *
@@ -260,7 +261,7 @@ public class GroupService {
         // 멤버인 경우에만 멤버 목록을 함께 반환
         List<ParticipantMemberListDto> memberList = alreadyJoined ? getGroupMembers(groupId) : null;
 
-        return GroupDetailDto.fromEntity(group, memberList);
+        return GroupDetailDto.fromEntity(group, memberList, alreadyJoined);
     }
 
     /**

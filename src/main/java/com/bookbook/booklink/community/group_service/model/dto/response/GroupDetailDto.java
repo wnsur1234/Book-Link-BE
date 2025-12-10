@@ -38,13 +38,19 @@ public class GroupDetailDto {
     @Schema(description = "모임을 만든 주최자(호스트) 사용자 이름", example = "책읽는_곰")
     private String hostName;
 
+    @Schema(description = "모임을 만든 주최자(호스트) 사용자 아이디(UUID)", example = "a1b2c3d4-e5f6-7890-1234-567890abcdef")
+    private UUID hostId;
+
     @Schema(description = "비공개 여부 (true: 비공개, false: 공개)", example = "false")
     private Boolean isPrivate;
+
+    @Schema(description = "참여 여부 (true: 참여, false: 미참여)", example = "false")
+    private Boolean isParticipant;
 
     @Schema(description = "모임 멤버 목록 (비공개 모임은 멤버만 조회 가능)")
     private List<ParticipantMemberListDto> memberList;
 
-    public static GroupDetailDto fromEntity(Group group, List<ParticipantMemberListDto> memberList) {
+    public static GroupDetailDto fromEntity(Group group, List<ParticipantMemberListDto> memberList, Boolean isParticipant) {
         return GroupDetailDto.builder()
                 .id(group.getId())
                 .thumbnail(group.getThumbnail())
@@ -53,7 +59,9 @@ public class GroupDetailDto {
                 .participantCount(group.getParticipantCount())
                 .maxCapacity(group.getMaxCapacity())
                 .hostName(group.getHostName())
+                .hostId(group.getHostId())
                 .isPrivate(group.getIsPrivate())
+                .isParticipant(isParticipant)
                 .memberList(memberList)
                 .build();
     }

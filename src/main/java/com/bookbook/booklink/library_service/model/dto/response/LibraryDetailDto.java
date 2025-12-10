@@ -59,6 +59,9 @@ public class LibraryDetailDto {
     @Schema(description = "현재 위치에서 도서관까지의 거리 (km)", example = "1.25")
     private Double distanceKm;
 
+    @Schema(description = "좋아요를 눌렀는지 여부", example = "true")
+    private Boolean isLiked;
+
     @Schema(description = "이 도서관에서 별점이 높은 상위 5개의 최신 리뷰")
     private List<ReviewListDto> topReviews;
 
@@ -95,7 +98,7 @@ public class LibraryDetailDto {
                 .build();
     }
 
-    public static LibraryDetailDto fromEntity(Library library, Double distanceKm, List<LibraryBook> top5List) {
+    public static LibraryDetailDto fromEntity(Library library, Double distanceKm, List<LibraryBook> top5List, Boolean isLiked) {
         return LibraryDetailDto.builder()
                 .id(library.getId())
                 .name(library.getName())
@@ -111,10 +114,11 @@ public class LibraryDetailDto {
                         .map(PopularBookDto::from)
                         .collect(Collectors.toList()))
                 .endTime(library.getEndTime())
+                .isLiked(isLiked)
                 .build();
     }
 
-    public static LibraryDetailDto fromEntity(Library library, List<LibraryBook> top5List, List<ReviewListDto> top5Review) {
+    public static LibraryDetailDto fromEntity(Library library, List<LibraryBook> top5List, List<ReviewListDto> top5Review, Boolean isLiked) {
         return LibraryDetailDto.builder()
                 .id(library.getId())
                 .name(library.getName())
@@ -130,6 +134,7 @@ public class LibraryDetailDto {
                         .collect(Collectors.toList()))
                 .endTime(library.getEndTime())
                 .topReviews(top5Review)
+                .isLiked(isLiked)
                 .build();
     }
 

@@ -83,6 +83,7 @@ public interface LibraryApiDocs {
             ErrorCode.METHOD_UNAUTHORIZED, ErrorCode.DATA_INTEGRITY_VIOLATION, ErrorCode.LIBRARY_NOT_FOUND})
     @GetMapping("/{id}")
     ResponseEntity<BaseResponse<LibraryDetailDto>> getLibrary(
+            @AuthenticationPrincipal(expression = "member") Member member,
             @PathVariable @NotNull(message = "조회할 도서관의 ID는 필수입니다.") UUID id
     );
 
@@ -94,6 +95,7 @@ public interface LibraryApiDocs {
             ErrorCode.METHOD_UNAUTHORIZED, ErrorCode.DATA_INTEGRITY_VIOLATION})
     @GetMapping
     ResponseEntity<BaseResponse<PageResponse<LibraryDetailDto>>> getLibraries(
+            @AuthenticationPrincipal(expression = "member") Member member,
             @RequestParam Double lat,
             @RequestParam Double lng,
             @RequestParam(required = false) String name,
