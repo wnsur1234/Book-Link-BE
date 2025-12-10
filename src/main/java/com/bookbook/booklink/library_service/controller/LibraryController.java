@@ -102,11 +102,12 @@ public class LibraryController implements LibraryApiDocs {
 
     @Override
     public ResponseEntity<BaseResponse<LibraryDetailDto>> getLibrary(
+            @AuthenticationPrincipal(expression = "member") Member member,
             @PathVariable @NotNull(message = "조회할 도서관의 ID는 필수입니다.") UUID id
     ) {
         List<LibraryBook> top5List = libraryBookService.findTop5Books(id);
         List<ReviewListDto> top5Review = reviewService.getTop5LibraryReview(id);
-        LibraryDetailDto libraryDetailDto = libraryService.getLibrary(id, top5List, top5Review);
+        LibraryDetailDto libraryDetailDto = libraryService.getLibrary(member.getId(), id, top5List, top5Review);
 
         return ResponseEntity.ok()
                 .body(BaseResponse.success(libraryDetailDto));
@@ -114,13 +115,14 @@ public class LibraryController implements LibraryApiDocs {
 
     @Override
     public ResponseEntity<BaseResponse<PageResponse<LibraryDetailDto>>> getLibraries(
+            @AuthenticationPrincipal(expression = "member") Member member,
             @RequestParam Double lat,
             @RequestParam Double lng,
             @RequestParam(required = false) String name,
             @PageableDefault(page = 0, size = 10) Pageable pageable
     ) {
 
-        PageResponse<LibraryDetailDto> result = libraryService.getLibraries(lat, lng, name, pageable);
+        PageResponse<LibraryDetailDto> result = libraryService.getLibraries(member.getId(), lat, lng, name, pageable);
 
         return ResponseEntity.ok()
                 .body(BaseResponse.success(result));

@@ -24,7 +24,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -143,11 +146,13 @@ public class LibraryService {
      * @return 변환된 dto
      */
     @Transactional(readOnly = true)
-    public LibraryDetailDto getLibrary(UUID libraryId, List<LibraryBook> top5List, List<ReviewListDto> top5Review) {
+    public LibraryDetailDto getLibrary(UUID userId, UUID libraryId, List<LibraryBook> top5List, List<ReviewListDto> top5Review) {
 
         Library library = findById(libraryId);
 
-        return LibraryDetailDto.fromEntity(library, top5List, top5Review);
+        Boolean isLiked = libraryLikesRepository.existsByLibraryAndUserId(library, userId);
+
+        return LibraryDetailDto.fromEntity(library, top5List, top5Review, isLiked);
     }
 
     @Transactional(readOnly = true)
@@ -167,7 +172,7 @@ public class LibraryService {
      * @return 페이지네이션된 도서관 정보 DTO Page
      */
     @Transactional(readOnly = true)
-    public PageResponse<LibraryDetailDto> getLibraries(Double lat, Double lng, String name, Pageable pageable) {
+    public PageResponse<LibraryDetailDto> getLibraries(UUID userId, Double lat, Double lng, String name, Pageable pageable) {
 
         Page<LibraryDistanceProjection> libraryPage = libraryRepository.findLibrariesOrderByDistance(lat, lng, name, pageable);
         List<UUID> libraryIds = libraryPage.getContent().stream()
@@ -192,7 +197,9 @@ public class LibraryService {
 
             List<LibraryBook> top5List = topBooksMap.getOrDefault(library.getId(), Collections.emptyList());
 
-            return LibraryDetailDto.fromEntity(library, distance, top5List);
+            Boolean isLiked = libraryLikesRepository.existsByLibraryAndUserId(library, userId);
+
+            return LibraryDetailDto.fromEntity(library, distance, top5List, isLiked);
         });
 
         return PageResponse.from(dtoPage);
