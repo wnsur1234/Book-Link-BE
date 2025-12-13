@@ -2,8 +2,9 @@ package com.bookbook.booklink.common.config.security;
 
 import com.bookbook.booklink.common.jwt.CustomUserDetail.UserDetailsServiceImpl;
 import com.bookbook.booklink.common.jwt.JwtAuthorizationFilter;
-import com.bookbook.booklink.common.jwt.service.RefreshTokenService;
 import com.bookbook.booklink.common.jwt.util.JWTUtil;
+import com.bookbook.booklink.common.oauth.KakaoOAuth2UserService;
+import com.bookbook.booklink.common.oauth.OAuth2SuccessHandler;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -15,7 +16,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -29,6 +29,8 @@ public class SecurityConfig {
 
     private final JWTUtil jwtUtil;
     private final UserDetailsServiceImpl userDetailsService;
+    private final KakaoOAuth2UserService kakaoOAuth2UserService;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Bean
     public AuthenticationManager authenticationManager(
@@ -50,6 +52,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/oauth2/**","/login/oauth2/**").permitAll()
                         // 비밀번호 변경 허용
                         .requestMatchers("/api/auth/password-reset/**").permitAll()
                         // 메일 확인 허용
@@ -80,13 +83,14 @@ public class SecurityConfig {
                             response.getWriter().write("{\"message\":\"권한 없음\"}");
                         })
                 )
+                .oauth2Login(oauth -> oauth
+                        .userInfoEndpoint(userInfo ->
+                                userInfo.userService(kakaoOAuth2UserService)
+                        )
+                        .successHandler(oAuth2SuccessHandler)
+                )
                 .addFilterBefore(new JwtAuthorizationFilter(jwtUtil, userDetailsService),
                         UsernamePasswordAuthenticationFilter.class)
                 .build();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 }
