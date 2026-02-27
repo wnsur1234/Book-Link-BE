@@ -1,9 +1,7 @@
 package com.bookbook.booklink.library_service.model.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.Getter;
 import org.hibernate.validator.constraints.URL;
 
@@ -25,19 +23,29 @@ public class LibraryRegDto {
 
     @Schema(description = "도서관 대표 썸네일 이미지 URL", example = "https://example.com/images/library-thumbnail.jpg", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     @URL(message = "썸네일은 올바른 URL 형식이어야 합니다.")
-    private String thumbnail_url;
+    private String thumbnailUrl;
 
     @Schema(description = "도서관 운영 시작 시간 (HH:mm 형식)", type = "string", format = "partial-time", example = "09:00", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private LocalTime start_time;
+    private LocalTime startTime;
 
     @Schema(description = "도서관 운영 종료 시간 (HH:mm 형식)", type = "string", format = "partial-time", example = "21:00", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private LocalTime end_time;
+    private LocalTime endTime;
+
+    @DecimalMin(value = "-90.0")
+    @DecimalMax(value = "90.0")
+    @Schema(description = "도서관 위도", example = "37.497923", requiredMode = Schema.RequiredMode.REQUIRED)
+    private Double latitude;
+
+    @DecimalMin(value = "-180.0")
+    @DecimalMax(value = "180.0")
+    @Schema(description = "도서관 경도", example = "127.027612", requiredMode = Schema.RequiredMode.REQUIRED)
+    private Double longitude;
 
     @AssertTrue(message = "영업 시작 시간은 종료 시간보다 빨라야 합니다.")
     public boolean isValidOperatingHours() {
-        if (start_time == null || end_time == null) {
+        if (startTime == null || endTime == null) {
             return true;
         }
-        return start_time.isBefore(end_time);
+        return startTime.isBefore(endTime);
     }
 }

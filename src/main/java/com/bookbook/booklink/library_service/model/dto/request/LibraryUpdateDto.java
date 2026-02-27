@@ -31,19 +31,19 @@ public class LibraryUpdateDto {
 
     @Schema(description = "도서관 대표 썸네일 이미지 URL", example = "https://example.com/images/library-thumbnail.jpg", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     @URL(message = "썸네일은 올바른 URL 형식이어야 합니다.")
-    private String thumbnail_url;
+    private String thumbnailUrl;
 
     @Schema(description = "도서관 운영 시작 시간 (HH:mm 형식)", type = "string", format = "partial-time", example = "09:00", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private LocalTime start_time;
+    private LocalTime startTime;
 
     @Schema(description = "도서관 운영 종료 시간 (HH:mm 형식)", type = "string", format = "partial-time", example = "21:00", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private LocalTime end_time;
+    private LocalTime endTime;
 
     @AssertTrue(message = "영업 시작 시간은 종료 시간보다 빨라야 합니다.")
     public boolean isValidOperatingHours() {
-        if (start_time == null || end_time == null) {
+        if (startTime == null || endTime == null) {
             return true;
         }
-        return start_time.isBefore(end_time);
+        return startTime.isBefore(endTime);
     }
 }
