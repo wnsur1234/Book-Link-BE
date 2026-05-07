@@ -10,13 +10,13 @@ spring:
   jackson:
     time-zone: Asia/Seoul
   jpa:
-    show-sql: true
+    show-sql: false
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
-        format_sql: true
-        use_sql_comments: true
+        format_sql: false
+        use_sql_comments: false
         dialect: org.hibernate.dialect.MySQLDialect
   data:
     redis:
@@ -108,3 +108,9 @@ management:
   endpoint:
     health:
       show-details: never
+
+logging:
+  level:
+    com.bookbook.booklink: INFO
+    org.hibernate.SQL: OFF
+    org.hibernate.orm.jdbc.bind: OFF

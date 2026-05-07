@@ -29,9 +29,9 @@ public class StompHandler implements ChannelInterceptor {
 
         switch (command) {
             case CONNECT -> log.info("[STOMP] CONNECT: user={}", userName);
-            case SUBSCRIBE -> log.debug("[STOMP] SUBSCRIBE: user={}, destination={}",
+            case SUBSCRIBE -> log.info("[STOMP] SUBSCRIBE: user={}, destination={}",
                     userName, accessor.getDestination());
-            case SEND -> log.debug("[STOMP] SEND: user={}, destination={}",
+            case SEND -> log.info("[STOMP] SEND: user={}, destination={}",
                     userName, accessor.getDestination());
             case DISCONNECT -> log.info("[STOMP] DISCONNECT: user={}", userName);
             default -> {

@@ -5,15 +5,16 @@ import com.bookbook.booklink.auth_service.repository.MemberRepository;
 import com.bookbook.booklink.common.exception.CustomException;
 import com.bookbook.booklink.common.exception.ErrorCode;
 import com.bookbook.booklink.common.jwt.util.JWTUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.support.DefaultHandshakeHandler;
 
 import java.security.Principal;
-import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Component
 public class CustomPrincipalHandshakeHandler extends DefaultHandshakeHandler {
 
@@ -42,19 +43,19 @@ public class CustomPrincipalHandshakeHandler extends DefaultHandshakeHandler {
 //        }
         // ✅ 1️⃣ URI에서 token 파라미터 추출
         String uri = request.getURI().toString();
-        System.out.println("🌐 Handshake URI: " + uri);
+        log.info("[Handshake] request URI received");
 
         if (!uri.contains("token=")) {
-            System.out.println("❌ Token missing in URI");
+            log.warn("[Handshake] token missing in URI");
             return null;
         }
 
         String token = uri.substring(uri.indexOf("token=") + 6);
-        System.out.println("🔑 Extracted token: " + token);
+        log.info("[Handshake] token extracted from URI");
 
         // ✅ 2️⃣ JWT 검증
         if (!jwtUtil.validateToken(token)) {
-            System.out.println("❌ Invalid token");
+            log.warn("[Handshake] invalid token");
             return null;
         }
 
@@ -63,7 +64,7 @@ public class CustomPrincipalHandshakeHandler extends DefaultHandshakeHandler {
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         CustomUserDetails userDetails = new CustomUserDetails(member);
-        System.out.println("✅ Handshake Principal created: " + userDetails.getUsername());
+        log.info("[Handshake] principal created. email={}", userDetails.getUsername());
         return userDetails; // Principal 등록
     }
 }
